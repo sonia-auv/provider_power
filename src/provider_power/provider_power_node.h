@@ -36,6 +36,7 @@
 #include <ros/ros.h>
 #include <geometry_msgs/Twist.h>
 #include "provider_power/powerMsg.h"
+#include <interface_rs485/SendRS485Msg.h>
 
 
 namespace provider_power {
@@ -51,7 +52,8 @@ class ProviderPowerNode {
 
   //============================================================================
   // P U B L I C   M E T H O D S
-  void PublishPowerMsg();
+    void PublishPowerMsg();
+    void PublishPowerData();
 
 
 
@@ -59,8 +61,11 @@ class ProviderPowerNode {
   //============================================================================
   // P R I V A T E   M E M B E R S
 
-  ros::NodeHandlePtr nh_;
-  ros::Publisher power_publisher_;
+    ros::NodeHandlePtr nh_;
+    ros::Publisher power_publisher_;
+    ros::Publisher power_publisherRx_;
+
+
 
 };
 }  // namespace provider_power

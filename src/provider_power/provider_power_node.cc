@@ -1,29 +1,3 @@
-//#include "ros/ros.h"
-
-
-//void main(int argc, char **argv){
-//
-//    ros::init(argc, argv, "providerPower");
-//
-//    ros::NodeHandle n;
-//
-//    ros::publisher power_publisher = n.advertise<provider_power::powerMsg>("/provider_power/power", 1000);
-//
-//    int count =0;
-//
-//    while (ros::ok()){
-//
-//        provider_power::powerMsg msg;
-//
-//        msg.cur16Pin1card1 = count;
-//
-//        power_publisher(msg);
-//
-//        ++count;
-//
-//    }
-//}
-
 /**
  * \file	sonar_node.cc
  * \author	Thibaut Mattio <thibaut.mattio@gmail.com>
@@ -69,8 +43,10 @@ ProviderPowerNode::ProviderPowerNode(ros::NodeHandlePtr &nh)
       : nh_(nh){
 
   power_publisher_ =
-      nh_->advertise<provider_power::powerMsg>("/provider_power/power", 10);
+            nh_->advertise<provider_power::powerMsg>("/provider_power/power", 10);
 
+  power_publisherRx_ =
+            nh_->advertise<interface_rs485::SendRS485Msg>("/interface_rs485/dataRx", 10);
 
 }
 
@@ -85,11 +61,25 @@ ProviderPowerNode::~ProviderPowerNode() {
 
 void ProviderPowerNode::PublishPowerMsg(){
 
-  provider_power::powerMsg msg;
+    provider_power::powerMsg msg;
 
-  msg.cur16Pin1card1 = 10.0;
+    msg.cur16Pin1card1 = 10.1;
 
-  power_publisher_.publish(msg);
+    power_publisher_.publish(msg);
+
+
+}
+
+
+void ProviderPowerNode::PublishPowerData(){
+
+    interface_rs485::SendRS485Msg messageData;
+
+    messageData.slave = messageData.SLAVE_powersupply0;
+    messageData.cmd =  messageData.CMD_PS_V16_1;
+    messageData.data.push_back(0x00);
+
+    power_publisherRx_.publish(messageData);
 
 
 }
