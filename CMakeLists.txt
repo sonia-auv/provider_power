@@ -11,14 +11,19 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(provider_power)
 
-if ( NOT CMAKE_BUILD_TYPE )
-    set( CMAKE_BUILD_TYPE Debug CACHE STRING
-            "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
-            FORCE )
-endif ( NOT CMAKE_BUILD_TYPE )
+if (NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Debug CACHE STRING
+            "Choose the type of build: None Debug Release RelWithDebInfo MinSizeRel."
+            FORCE)
+endif (NOT CMAKE_BUILD_TYPE)
 
-set( CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -std=c++11 -Wall" )
-set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -std=c++11 -O3" )
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -std=c++11")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -std=c++11 -O3")
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
 
 #===============================================================================
 # C A T K I N   C O N F I G U R A T I O N
@@ -28,6 +33,7 @@ find_package( catkin REQUIRED COMPONENTS
         std_msgs
         message_generation
         lib_atlas
+        interface_rs485
         )
 
 
@@ -47,6 +53,7 @@ catkin_package(
         std_msgs
         message_runtime
         lib_atlas
+        interface_rs485
 )
 
 

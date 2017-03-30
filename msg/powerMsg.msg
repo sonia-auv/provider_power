@@ -5,6 +5,7 @@ float32 volt16Pin1card1
 float32 volt16Pin2card1
 float32 volt12card1
 float32 temperature1
+float32 battery1
 float32 cur16Pin1card2
 float32 cur16Pin2card2
 float32 cur12card2
@@ -12,6 +13,7 @@ float32 volt16Pin1card2
 float32 volt16Pin2card2
 float32 volt12card2
 float32 temperature2
+float32 battery2
 float32 cur16Pin1card3
 float32 cur16Pin2card3
 float32 cur12card3
@@ -19,6 +21,7 @@ float32 volt16Pin1card3
 float32 volt16Pin2card3
 float32 volt12card3
 float32 temperature3
+float32 battery3
 float32 cur16Pin1card4
 float32 cur16Pin2card4
 float32 cur12card4
@@ -26,3 +29,4 @@ float32 volt16Pin1card4
 float32 volt16Pin2card4
 float32 volt12card4
 float32 temperature4
+float32 battery4
