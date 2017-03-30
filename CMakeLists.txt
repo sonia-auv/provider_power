@@ -31,6 +31,9 @@ find_package( catkin REQUIRED COMPONENTS
         )
 
 
+file(GLOB srv_files RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/srv/"
+        "${CMAKE_CURRENT_SOURCE_DIR}/srv/*.srv")
+add_service_files(DIRECTORY srv FILES ${srv_files})
 add_message_files(DIRECTORY msg FILES powerMsg.msg)
 
 generate_messages(DEPENDENCIES std_msgs )
