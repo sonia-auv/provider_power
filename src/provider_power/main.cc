@@ -8,7 +8,6 @@ int main(int argc, char **argv) {
   provider_power::ProviderPowerNode ppn(nh);
   ros::Rate loop_rate(10);
   while (ros::ok()) {
-    ppn.PublishPowerMsg();
     ppn.PublishPowerData();
     ros::spinOnce();
     loop_rate.sleep();

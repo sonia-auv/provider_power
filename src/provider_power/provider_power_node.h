@@ -43,6 +43,12 @@ namespace provider_power {
 
 class ProviderPowerNode {
  public:
+
+    union powerData {
+        uint8_t Bytes[2];
+        uint16_t fration;
+    };
+
   //============================================================================
   // P U B L I C   C / D T O R S
 
@@ -52,8 +58,9 @@ class ProviderPowerNode {
 
   //============================================================================
   // P U B L I C   M E T H O D S
-    void PublishPowerMsg();
+    void PublishPowerMsg(const interface_rs485::SendRS485Msg::ConstPtr& publishData);
     void PublishPowerData();
+    void PowerDataCallBack(const interface_rs485::SendRS485Msg::ConstPtr& receiveData);
 
 
 
@@ -62,8 +69,9 @@ class ProviderPowerNode {
   // P R I V A T E   M E M B E R S
 
     ros::NodeHandlePtr nh_;
-    ros::Publisher power_publisher_;
-    ros::Publisher power_publisherRx_;
+    ros::Publisher  power_publisher_;
+    ros::Publisher  power_publisherRx_;
+    ros::Subscriber power_subscriberTx_;
 
 
 

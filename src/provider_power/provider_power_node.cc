@@ -48,25 +48,39 @@ ProviderPowerNode::ProviderPowerNode(ros::NodeHandlePtr &nh)
   power_publisherRx_ =
             nh_->advertise<interface_rs485::SendRS485Msg>("/interface_rs485/dataRx", 10);
 
+  power_subscriberTx_ =
+                nh_->subscribe("/interface_rs485/dataTx", 100, &ProviderPowerNode::PowerDataCallBack, this);
+
 }
 
 //------------------------------------------------------------------------------
 //
 ProviderPowerNode::~ProviderPowerNode() {
 
+        power_subscriberTx_.shutdown();
+
 }
 
 //==============================================================================
 // M E T H O D   S E C T I O N
 
-void ProviderPowerNode::PublishPowerMsg(){
+void ProviderPowerNode::PublishPowerMsg(const interface_rs485::SendRS485Msg::ConstPtr& publishData){
 
     provider_power::powerMsg msg;
 
-    msg.cur16Pin1card1 = 10.1;
+    float DataMsg;
+    powerData data;
+
+    data.Bytes[0] = publishData->data[0];
+    data.Bytes[1] = publishData->data[1];
+
+    DataMsg = data.fration;
+
+    msg.slave = publishData->slave;
+    msg.cmd = publishData->cmd;
+    msg.Data = DataMsg;
 
     power_publisher_.publish(msg);
-
 
 }
 
@@ -81,6 +95,16 @@ void ProviderPowerNode::PublishPowerData(){
 
     power_publisherRx_.publish(messageData);
 
+
+}
+
+void ProviderPowerNode::PowerDataCallBack(const interface_rs485::SendRS485Msg::ConstPtr& receiveData){
+
+        if(receiveData->slave == receiveData->SLAVE_powersupply0 or receiveData->slave == receiveData->SLAVE_powersupply1){
+
+            ProviderPowerNode::PublishPowerMsg(receiveData);
+
+        }
 
 }
 
