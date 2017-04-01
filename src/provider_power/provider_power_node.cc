@@ -51,6 +51,9 @@ ProviderPowerNode::ProviderPowerNode(ros::NodeHandlePtr &nh)
   power_subscriberTx_ =
                 nh_->subscribe("/interface_rs485/dataTx", 100, &ProviderPowerNode::PowerDataCallBack, this);
 
+  power_serviceServer_  = nh_->advertiseService("/provider_power/manage_power_supply_bus",
+                                                &ProviderPowerNode::powerServer, this);
+
 }
 
 //------------------------------------------------------------------------------
@@ -68,13 +71,13 @@ void ProviderPowerNode::PublishPowerMsg(const interface_rs485::SendRS485Msg::Con
 
     provider_power::powerMsg msg;
 
-    float DataMsg;
+    uint16_t DataMsg;
     powerData data;
 
-    data.Bytes[0] = publishData->data[0];
-    data.Bytes[1] = publishData->data[1];
+    data.Bytes[1] = publishData->data[0];
+    data.Bytes[0] = publishData->data[1];
 
-    DataMsg = data.fration;
+    DataMsg = data.fraction;
 
     msg.slave = publishData->slave;
     msg.cmd = publishData->cmd;
@@ -87,13 +90,11 @@ void ProviderPowerNode::PublishPowerMsg(const interface_rs485::SendRS485Msg::Con
 
 void ProviderPowerNode::PublishPowerData(){
 
-    interface_rs485::SendRS485Msg messageData;
+    interface_rs485::SendRS485Msg pollingSlave;
 
-    messageData.slave = messageData.SLAVE_powersupply0;
-    messageData.cmd =  messageData.CMD_PS_V16_1;
-    messageData.data.push_back(0x00);
 
-    power_publisherRx_.publish(messageData);
+    pollPower(pollingSlave.SLAVE_powersupply0);
+    pollPower(pollingSlave.SLAVE_powersupply1);
 
 
 }
@@ -105,6 +106,53 @@ void ProviderPowerNode::PowerDataCallBack(const interface_rs485::SendRS485Msg::C
             ProviderPowerNode::PublishPowerMsg(receiveData);
 
         }
+
+}
+
+bool ProviderPowerNode::powerServer(provider_power::ManagePowerSupplyBus::Request  &req,
+                                    provider_power::ManagePowerSupplyBus::Response &res){
+
+    interface_rs485::SendRS485Msg enablePower;
+
+    static uint8_t swapSlave[4] = {enablePower.SLAVE_powersupply0, enablePower.SLAVE_powersupply1
+                            , enablePower.SLAVE_powersupply2 , enablePower.SLAVE_powersupply3};
+    static uint8_t swapCmd[3]   = {enablePower.CMD_PS_ACT_12V, enablePower.CMD_PS_ACT_16V_1,
+                                   enablePower.CMD_PS_ACT_16V_2};
+
+    enablePower.slave = swapSlave[req.slave];
+    enablePower.cmd = swapCmd[req.bus];
+    enablePower.data.push_back(req.state);
+
+    power_publisherRx_.publish(enablePower);
+
+    return true;
+
+}
+
+void ProviderPowerNode::pollPower(uint8_t slave){
+
+    interface_rs485::SendRS485Msg pollingCmd;
+
+    pollCmd(slave, pollingCmd.CMD_PS_V16_1);
+    pollCmd(slave, pollingCmd.CMD_PS_V16_2);
+    pollCmd(slave, pollingCmd.CMD_PS_V12);
+    pollCmd(slave, pollingCmd.CMD_PS_C16_1);
+    pollCmd(slave, pollingCmd.CMD_PS_C16_2);
+    pollCmd(slave, pollingCmd.CMD_PS_C12);
+    pollCmd(slave, pollingCmd.CMD_PS_temperature);
+    pollCmd(slave, pollingCmd.CMD_PS_VBatt);
+
+}
+
+void ProviderPowerNode::pollCmd(uint8_t slave, uint8_t cmd){
+
+    interface_rs485::SendRS485Msg messageData;
+
+    messageData.slave = slave;
+    messageData.cmd =  cmd;
+    messageData.data.push_back(0x00);
+
+    power_publisherRx_.publish(messageData);
 
 }
 

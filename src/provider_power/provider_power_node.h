@@ -37,6 +37,7 @@
 #include <geometry_msgs/Twist.h>
 #include "provider_power/powerMsg.h"
 #include <interface_rs485/SendRS485Msg.h>
+#include <provider_power/ManagePowerSupplyBus.h>
 
 
 namespace provider_power {
@@ -46,7 +47,7 @@ class ProviderPowerNode {
 
     union powerData {
         uint8_t Bytes[2];
-        uint16_t fration;
+        uint16_t fraction;
     };
 
   //============================================================================
@@ -61,6 +62,12 @@ class ProviderPowerNode {
     void PublishPowerMsg(const interface_rs485::SendRS485Msg::ConstPtr& publishData);
     void PublishPowerData();
     void PowerDataCallBack(const interface_rs485::SendRS485Msg::ConstPtr& receiveData);
+    bool powerServer(provider_power::ManagePowerSupplyBus::Request  &req,
+                     provider_power::ManagePowerSupplyBus::Response &res);
+
+    void pollPower(uint8_t slave);
+    void pollCmd(uint8_t slave, uint8_t cmd);
+
 
 
 
@@ -72,6 +79,7 @@ class ProviderPowerNode {
     ros::Publisher  power_publisher_;
     ros::Publisher  power_publisherRx_;
     ros::Subscriber power_subscriberTx_;
+    ros::ServiceServer power_serviceServer_;
 
 
 
