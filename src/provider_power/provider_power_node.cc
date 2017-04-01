@@ -71,17 +71,20 @@ void ProviderPowerNode::PublishPowerMsg(const interface_rs485::SendRS485Msg::Con
 
     provider_power::powerMsg msg;
 
-    uint16_t DataMsg;
     powerData data;
 
     data.Bytes[1] = publishData->data[0];
     data.Bytes[0] = publishData->data[1];
 
-    DataMsg = data.fraction;
+
+
+
+    msg.Data = data.fraction / convert;
 
     msg.slave = publishData->slave;
+    msg.slave -= swap;
     msg.cmd = publishData->cmd;
-    msg.Data = DataMsg;
+
 
     power_publisher_.publish(msg);
 
@@ -93,8 +96,8 @@ void ProviderPowerNode::PublishPowerData(){
     interface_rs485::SendRS485Msg pollingSlave;
 
 
-    pollPower(pollingSlave.SLAVE_powersupply0);
-    pollPower(pollingSlave.SLAVE_powersupply1);
+    pollPower(interface_rs485::SendRS485Msg::SLAVE_powersupply0);
+    pollPower(interface_rs485::SendRS485Msg::SLAVE_powersupply1);
 
 
 }
@@ -131,16 +134,14 @@ bool ProviderPowerNode::powerServer(provider_power::ManagePowerSupplyBus::Reques
 
 void ProviderPowerNode::pollPower(uint8_t slave){
 
-    interface_rs485::SendRS485Msg pollingCmd;
-
-    pollCmd(slave, pollingCmd.CMD_PS_V16_1);
-    pollCmd(slave, pollingCmd.CMD_PS_V16_2);
-    pollCmd(slave, pollingCmd.CMD_PS_V12);
-    pollCmd(slave, pollingCmd.CMD_PS_C16_1);
-    pollCmd(slave, pollingCmd.CMD_PS_C16_2);
-    pollCmd(slave, pollingCmd.CMD_PS_C12);
-    pollCmd(slave, pollingCmd.CMD_PS_temperature);
-    pollCmd(slave, pollingCmd.CMD_PS_VBatt);
+    pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_V16_1);
+    pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_V16_2);
+    pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_V12);
+    pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_C16_1);
+    pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_C16_2);
+    pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_C12);
+    pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_temperature);
+    pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_VBatt);
 
 }
 

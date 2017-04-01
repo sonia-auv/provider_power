@@ -45,6 +45,10 @@ namespace provider_power {
 class ProviderPowerNode {
  public:
 
+    const uint8_t swap = 48;
+
+    const uint16_t  convert = 1000;
+
     union powerData {
         uint8_t Bytes[2];
         uint16_t fraction;
@@ -67,8 +71,6 @@ class ProviderPowerNode {
 
     void pollPower(uint8_t slave);
     void pollCmd(uint8_t slave, uint8_t cmd);
-
-
 
 
  private:
