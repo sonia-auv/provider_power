@@ -1,9 +1,7 @@
 /**
- * \file	sonar_node.h
- * \author	Thibaut Mattio <thibaut.mattio@gmail.com>
- * \author  Pierluc Bédard <blindmiror@gmail.com>
- * \author  Francis Masse <francis.masse05@gmail.com>
- * \date	11/02/2016
+ * \file	provier_power.h
+ * \author	Olivier Lavoie <olavoie0795@gmail.com>
+ * \date	03/2017
  *
  * \copyright Copyright (c) 2016 Copyright (C) 2011 Randolph Voorhies
  *
@@ -36,56 +34,83 @@
 #include <ros/ros.h>
 #include <geometry_msgs/Twist.h>
 #include "provider_power/powerMsg.h"
+#include "provider_power/powerInfo.h"
 #include <interface_rs485/SendRS485Msg.h>
 #include <provider_power/ManagePowerSupplyBus.h>
 
-
 namespace provider_power {
 
-class ProviderPowerNode {
- public:
 
-    const uint8_t swap = 48;
+    class ProviderPowerNode {
+    public:
+        //============================================================================
+        // P U B L I C   C / D T O R S
 
-    const uint16_t  convert = 1000;
+        ProviderPowerNode(ros::NodeHandlePtr &nh);
 
-    union powerData {
-        uint8_t Bytes[2];
-        uint16_t fraction;
+        ~ProviderPowerNode();
+
+        //============================================================================
+        // P U B L I C   M E T H O D S
+        void PublishPowerMsg(const interface_rs485::SendRS485Msg::ConstPtr &publishData);
+
+        void PublishPowerData();
+
+        void PowerDataCallBack(const interface_rs485::SendRS485Msg::ConstPtr &receiveData);
+
+        bool powerServer(provider_power::ManagePowerSupplyBus::Request &req,
+                         provider_power::ManagePowerSupplyBus::Response &res);
+
+        void pollPower(uint8_t slave);
+
+        void pollCmd(uint8_t slave, uint8_t cmd);
+
+        void wattCalculation(const uint8_t slave, const uint8_t cmd);
+
+        void initialize();
+
+        const ros::TimerCallback wattCallBack;
+
+        uint16_t watt5min[3][2];
+        uint16_t watt1h[3][2];
+        uint16_t watttotal[3][2];
+
+
+        uint16_t powerInformation[3][6];
+
+
+
+    private:
+        //============================================================================
+        // P R I V A T E   M E M B E R S
+
+
+
+        ros::NodeHandlePtr nh_;
+        ros::Publisher power_publisher_;
+        ros::Publisher power_publisherRx_;
+        ros::Publisher power_publisherInfo_;
+        ros::Subscriber power_subscriberTx_;
+        ros::ServiceServer power_serviceServer_;
+        ros::Timer timerForWatt_;
+
+
+        const uint8_t next = 3;
+
+        const uint16_t convert = 1000;
+
+
+        union powerData {
+            uint8_t Bytes[2];
+            uint16_t fraction;
+        };
+
+        uint16_t nbTime[4];
+
     };
 
-  //============================================================================
-  // P U B L I C   C / D T O R S
 
-  ProviderPowerNode(ros::NodeHandlePtr &nh);
-
-  ~ProviderPowerNode();
-
-  //============================================================================
-  // P U B L I C   M E T H O D S
-    void PublishPowerMsg(const interface_rs485::SendRS485Msg::ConstPtr& publishData);
-    void PublishPowerData();
-    void PowerDataCallBack(const interface_rs485::SendRS485Msg::ConstPtr& receiveData);
-    bool powerServer(provider_power::ManagePowerSupplyBus::Request  &req,
-                     provider_power::ManagePowerSupplyBus::Response &res);
-
-    void pollPower(uint8_t slave);
-    void pollCmd(uint8_t slave, uint8_t cmd);
-
-
- private:
-  //============================================================================
-  // P R I V A T E   M E M B E R S
-
-    ros::NodeHandlePtr nh_;
-    ros::Publisher  power_publisher_;
-    ros::Publisher  power_publisherRx_;
-    ros::Subscriber power_subscriberTx_;
-    ros::ServiceServer power_serviceServer_;
-
-
-
-};
 }  // namespace provider_power
+
 
 #endif //PROVIDER_POWER_PROVIDER_POWER_NODE_H

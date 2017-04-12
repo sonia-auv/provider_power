@@ -39,9 +39,13 @@ find_package( catkin REQUIRED COMPONENTS
 file(GLOB srv_files RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/srv/"
         "${CMAKE_CURRENT_SOURCE_DIR}/srv/*.srv")
 add_service_files(DIRECTORY srv FILES ${srv_files})
-add_message_files(DIRECTORY msg FILES powerMsg.msg)
+add_message_files(
+        DIRECTORY msg
+        FILES
+        powerMsg.msg
+        powerInfo.msg)
 
-generate_messages(DEPENDENCIES std_msgs )
+generate_messages(DEPENDENCIES std_msgs)
 
 # Declare this project as a catkin package and export the necessary build flags
 catkin_package(
@@ -62,15 +66,20 @@ catkin_package(
 set(provider_power_INCLUDE_DIRS "src")
 set(provider_power_SRC_DIR "src/provider_power")
 
+file(GLOB_RECURSE provider_power_FILES
+        "${provider_power_SRC_DIR}/*.cc"
+        "${provider_power_SRC_DIR}/*.h")
+
+list(REMOVE_ITEM provider_power_FILES
+        ${CMAKE_CURRENT_SOURCE_DIR}/${provider_power_SRC_DIR}/main.cc)
+
 # Include all the directories where source can be found.
 include_directories(
         ${provider_power_INCLUDE_DIRS}
         ${catkin_INCLUDE_DIRS}
 )
-
 #==========================================================================
 # C R E A T E   E X E C U T A B L E
-
 set( TARGET_NAME provider_power_node )
 add_executable( ${TARGET_NAME}
         ${provider_power_SRC_DIR}/main.cc
@@ -79,3 +88,8 @@ target_link_libraries( ${TARGET_NAME} ${catkin_LIBRARIES})
 set_target_properties( ${TARGET_NAME} PROPERTIES LINKER_LANGUAGE CXX )
 add_dependencies(${PROJECT_NAME}_node
         ${PROJECT_NAME}_generate_messages_cpp)
+#==========================================================================
+# U N I T   T E S T S
+if (${CATKIN_ENABLE_TESTING})
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/test)
+endif ()
