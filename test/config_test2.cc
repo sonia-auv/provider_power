@@ -13,6 +13,50 @@ union powerData {
     uint16_t data;
 };
 
+ros::NodeHandle nh;
+
+class : public ::testing::Test{
+
+private:
+
+
+    const uint16_t Vtest1 = 0;      //Test minimal
+    const uint16_t Vtest2 = 16000;  //Test nominal
+    const uint16_t Vtest3 = 65535;  //Test maximal
+    const uint16_t Ctest1 = 0;      //Test minimal
+    const uint16_t Ctest2 = 15567;  //Test nominal
+    const uint16_t Ctest3 = 65535;  //Test maximal
+
+
+
+
+
+public:
+
+    powerData dataVTest1, dataVTest2, dataVTest3, dataCTest1, dataCTest2, dataCTest3;
+
+    ros::Publisher power_subscriberTx_ = nh.advertise<interface_rs485::SendRS485Msg>("/interface_rs485/dataRx", 10);
+
+    interface_rs485::SendRS485Msg msg;
+
+    struct dataTest{
+
+        const uint8_t test1;
+        const uint8_t test2;
+        const uint8_t test3;
+
+    };
+
+    struct mockPS{
+
+        dataTest
+
+    };
+
+
+
+};
+
 
 // Declare a test
 TEST(TestSuite, testCase1) {
@@ -42,7 +86,7 @@ TEST(TestSuite, testCase1) {
 
 
     //*msg1 = msg;
-    //pub.publish(msg);
+    pub.publish(msg);
 
 
     //sleep(2);
@@ -68,6 +112,7 @@ TEST(TestSuite, testCase2)
 int main(int argc, char **argv) {
 
     testing::InitGoogleTest(&argc, argv);
+    testing::InitGoogleMock(&argc, argv);
     argc_g = argc;
     argv_g = argv;
     ros::init(argc_g, argv_g, "provider_power");
