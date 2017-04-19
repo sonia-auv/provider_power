@@ -56,7 +56,7 @@ namespace provider_power {
 
         ProviderPowerNode::initialize();
 
-        //timerForWatt_ = nh_->createTimer(ros::Duration(1.0), ProviderPowerNode::wattCallBack);
+        //timerForWatt_ = nh_->createTimer(ros::Duration(1.0), &ProviderPowerNode::wattCallBack, true);
 
 
     }
@@ -231,8 +231,6 @@ namespace provider_power {
                 powerInformation[i][j] = 0;
             }
         }
-
-
 
     }
 

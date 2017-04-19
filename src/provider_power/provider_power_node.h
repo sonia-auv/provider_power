@@ -69,7 +69,8 @@ namespace provider_power {
 
         void initialize();
 
-        const ros::TimerCallback wattCallBack;
+        //const ros::TimerCallback wattCallBack;
+        //const ros::TimerCallback wattCallBack(const ros::TimerCallback);
 
         uint16_t watt5min[3][2];
         uint16_t watt1h[3][2];
