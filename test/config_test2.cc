@@ -14,6 +14,7 @@ union powerData {
     uint16_t data;
 };
 
+uint8_t done;
 
 class mockingPS{
 public:
@@ -25,7 +26,7 @@ public:
     ~mockingPS();
 
 
-    powerData dataVTest1, dataVTest2, dataVTest3, dataCTest1, dataCTest2, dataCTest3;
+    powerData dataVTest1, dataVTest2, dataVTest3, dataCTest1, dataCTest2, dataCTest3, dataVTest, dataCTest;
 
     //ros::Publisher power_publisherTx_ = nh.advertise<interface_rs485::SendRS485Msg>("/interface_rs485/dataTx", 10);
 
@@ -33,12 +34,12 @@ public:
     interface_rs485::SendRS485Msg msgTestC;
 
 
-    const uint16_t Vtest1 = 0;      //Test minimal
-    const uint16_t Vtest2 = 12234;  //Test nominal
-    const uint16_t Vtest3 = 65535;  //Test maximal
-    const uint16_t Ctest1 = 0;      //Test minimal
-    const uint16_t Ctest2 = 155;   //Test nominal
-    const uint16_t Ctest3 = 65535;  //Test maximal
+    const float Vtest1 = 0;      //Test minimal
+    const float Vtest2 = 12234;  //Test nominal
+    const float Vtest3 = 65535;  //Test maximal
+    const float Ctest1 = 0;      //Test minimal
+    const float Ctest2 = 1550;   //Test nominal
+    const float Ctest3 = 65535;  //Test maximal
 
     void initializeMockTest1();
     void initializeMockTest2();
@@ -75,19 +76,15 @@ void mockingPS::initializeMockTest1(){
     msgTestV.cmd = interface_rs485::SendRS485Msg::CMD_PS_V16_1;
     msgTestC.cmd = interface_rs485::SendRS485Msg::CMD_PS_C16_1;
 
-    dataVTest1.data = Vtest1;
-    dataCTest1.data = Ctest1;
+    dataVTest.data = Vtest1;
+    dataCTest.data = Ctest1;
 
 
-    msgTestV.data.push_back(dataVTest1.Bytes[1]);
-    msgTestV.data.push_back(dataVTest1.Bytes[0]);
+    msgTestV.data.push_back(dataVTest.Bytes[1]);
+    msgTestV.data.push_back(dataVTest.Bytes[0]);
 
-    msgTestC.data.push_back(dataCTest1.Bytes[1]);
-    msgTestC.data.push_back(dataCTest1.Bytes[0]);
-
-
-
-
+    msgTestC.data.push_back(dataCTest.Bytes[1]);
+    msgTestC.data.push_back(dataCTest.Bytes[0]);
 
 }
 
@@ -99,14 +96,14 @@ void mockingPS::initializeMockTest2(){
     msgTestV.cmd = interface_rs485::SendRS485Msg::CMD_PS_V12;
     msgTestC.cmd = interface_rs485::SendRS485Msg::CMD_PS_C12;
 
-    dataVTest2.data = Vtest2;
-    dataCTest2.data = Ctest2;
+    dataVTest.data = Vtest2;
+    dataCTest.data = Ctest2;
 
-    msgTestV.data.push_back(dataVTest2.Bytes[1]);
-    msgTestV.data.push_back(dataVTest2.Bytes[0]);
+    msgTestV.data.push_back(dataVTest.Bytes[1]);
+    msgTestV.data.push_back(dataVTest.Bytes[0]);
 
-    msgTestC.data.push_back(dataCTest2.Bytes[1]);
-    msgTestC.data.push_back(dataCTest2.Bytes[0]);
+    msgTestC.data.push_back(dataCTest.Bytes[1]);
+    msgTestC.data.push_back(dataCTest.Bytes[0]);
 
 }
 
@@ -118,14 +115,14 @@ void mockingPS::initializeMockTest3(){
     msgTestV.cmd = interface_rs485::SendRS485Msg::CMD_PS_V16_2;
     msgTestC.cmd = interface_rs485::SendRS485Msg::CMD_PS_C16_2;
 
-    dataVTest3.data = Vtest3;
-    dataCTest3.data = Ctest3;
+    dataVTest.data = Vtest3;
+    dataCTest.data = Ctest3;
 
-    msgTestV.data.push_back(dataVTest3.Bytes[1]);
-    msgTestV.data.push_back(dataVTest3.Bytes[0]);
+    msgTestV.data.push_back(dataVTest.Bytes[1]);
+    msgTestV.data.push_back(dataVTest.Bytes[0]);
 
-    msgTestC.data.push_back(dataCTest3.Bytes[1]);
-    msgTestC.data.push_back(dataCTest3.Bytes[0]);
+    msgTestC.data.push_back(dataCTest.Bytes[1]);
+    msgTestC.data.push_back(dataCTest.Bytes[0]);
 
 }
 
@@ -137,9 +134,27 @@ TEST(TestSuite, testCase1) {
     mockingPS mps(nh);
     mps.initializeMockTest1();
 
-    mps.power_publisherTx_.publish(mps.msgTestV);
-    sleep(2);
-    mps.power_publisherTx_.publish(mps.msgTestC);
+    provider_power::ProviderPowerNode ppn(nh);
+
+
+    done=0;
+    do{
+
+        mps.power_publisherTx_.publish(mps.msgTestV);
+        sleep(1);
+        mps.power_publisherTx_.publish(mps.msgTestC);
+        sleep(1);
+
+        done++;
+
+    }while(done <= 4);
+
+
+    ppn.wattCalculation(0,0);
+
+    uint16_t data = ppn.watt5min[0][0];
+
+    ASSERT_EQ(data,0);
 
 }
 
@@ -150,9 +165,25 @@ TEST(TestSuite, testCase2){
     mockingPS mps(nh);
     mps.initializeMockTest2();
 
-    mps.power_publisherTx_.publish(mps.msgTestV);
-    sleep(2);
-    mps.power_publisherTx_.publish(mps.msgTestC);
+    provider_power::ProviderPowerNode ppn(nh);
+
+    done=0;
+    do{
+
+        mps.power_publisherTx_.publish(mps.msgTestV);
+        sleep(1);
+        mps.power_publisherTx_.publish(mps.msgTestC);
+        sleep(1);
+
+        done++;
+
+    }while(done <= 2);
+
+    ppn.wattCalculation(0,0);
+
+    uint16_t data = ppn.watt5min[1][2];
+
+    ASSERT_EQ(data,0);
 
 }
 
@@ -162,9 +193,25 @@ TEST(TestSuite, testCase3){
     mockingPS mps(nh);
     mps.initializeMockTest3();
 
-    mps.power_publisherTx_.publish(mps.msgTestV);
-    sleep(2);
-    mps.power_publisherTx_.publish(mps.msgTestC);
+    provider_power::ProviderPowerNode ppn(nh);
+
+    done=0;
+    do{
+
+        mps.power_publisherTx_.publish(mps.msgTestV);
+        sleep(1);
+        mps.power_publisherTx_.publish(mps.msgTestC);
+        sleep(1);
+
+        done++;
+
+    }while(done <= 4);
+
+    ppn.wattCalculation(0,0);
+
+    uint16_t data = ppn.watt5min[0][0];
+
+    ASSERT_EQ(data,0);
 
 }
 

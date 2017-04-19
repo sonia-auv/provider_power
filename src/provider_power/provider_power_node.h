@@ -40,7 +40,6 @@
 
 namespace provider_power {
 
-
     class ProviderPowerNode {
     public:
         //============================================================================
@@ -72,12 +71,12 @@ namespace provider_power {
         //const ros::TimerCallback wattCallBack;
         //const ros::TimerCallback wattCallBack(const ros::TimerCallback);
 
-        uint16_t watt5min[3][2];
-        uint16_t watt1h[3][2];
-        uint16_t watttotal[3][2];
+        float watt5min[3][2];
+        float watt1h[3][2];
+        float watttotal[3][2];
 
 
-        uint16_t powerInformation[3][6];
+        float powerInformation[3][5];
 
 
 
@@ -102,8 +101,8 @@ namespace provider_power {
 
 
         union powerData {
-            uint8_t Bytes[2];
-            uint16_t fraction;
+            uint8_t Bytes[4];
+            float info;
         };
 
         uint16_t nbTime[4];

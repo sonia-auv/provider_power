@@ -1,5 +1,5 @@
 uint8 bus
 uint8 slave
-uint16 data1h
-uint16 data5min
+float32 data1h
+float32 data5min
 

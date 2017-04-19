@@ -59,6 +59,8 @@ namespace provider_power {
         //timerForWatt_ = nh_->createTimer(ros::Duration(1.0), &ProviderPowerNode::wattCallBack, true);
 
 
+
+
     }
 
 //------------------------------------------------------------------------------
@@ -78,30 +80,26 @@ namespace provider_power {
 
         powerData data;
 
-        data.Bytes[0] = publishData->data[1];
-        data.Bytes[1] = publishData->data[0];
+        data.Bytes[0] = publishData->data[3];
+        data.Bytes[1] = publishData->data[2];
+        data.Bytes[2] = publishData->data[1];
+        data.Bytes[3] = publishData->data[0];
 
-        if (publishData->cmd == interface_rs485::SendRS485Msg::CMD_PS_temperature) {
 
-            msg.Data = data.fraction;
-
-        } else {
-
-            msg.Data = data.fraction / convert;
-
-        }
 
         msg.slave = publishData->slave;
         msg.slave -= interface_rs485::SendRS485Msg::SLAVE_powersupply0;
         msg.cmd = publishData->cmd;
+        msg.data = data.info;
 
         power_publisher_.publish(msg);
 
 
         if (msg.cmd < interface_rs485::SendRS485Msg::CMD_PS_temperature) {
 
-            powerInformation[msg.slave][msg.cmd] = msg.Data;
-            wattCalculation(msg.slave,msg.cmd);                
+            powerInformation[msg.slave][msg.cmd] = msg.data;
+
+            //wattCalculation(msg.slave,msg.cmd);
 
         }
 
@@ -181,8 +179,8 @@ namespace provider_power {
         msg.slave = slave;
         msg.bus = cmd;
 
-        uint16_t voltage = 0;
-        uint16_t amperage = 0;
+        float voltage = 0;
+        float amperage = 0;
 
         voltage = powerInformation[slave][cmd];
         amperage = powerInformation[slave][cmd + next];
