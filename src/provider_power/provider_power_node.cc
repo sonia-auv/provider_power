@@ -58,9 +58,6 @@ namespace provider_power {
 
         //timerForWatt_ = nh_->createTimer(ros::Duration(1.0), &ProviderPowerNode::wattCallBack, true);
 
-
-
-
     }
 
 //------------------------------------------------------------------------------
@@ -80,10 +77,10 @@ namespace provider_power {
 
         powerData data;
 
-        data.Bytes[0] = publishData->data[3];
-        data.Bytes[1] = publishData->data[2];
-        data.Bytes[2] = publishData->data[1];
-        data.Bytes[3] = publishData->data[0];
+        data.Bytes[0] = publishData->data[0];
+        data.Bytes[1] = publishData->data[1];
+        data.Bytes[2] = publishData->data[2];
+        data.Bytes[3] = publishData->data[3];
 
 
 
@@ -92,15 +89,19 @@ namespace provider_power {
         msg.cmd = publishData->cmd;
         msg.data = data.info;
 
+        if (msg.data >= 0 && msg.data < 1){
+
+            msg.data = 0;
+
+        }
+
         power_publisher_.publish(msg);
 
 
         if (msg.cmd < interface_rs485::SendRS485Msg::CMD_PS_temperature) {
 
             powerInformation[msg.slave][msg.cmd] = msg.data;
-
-            //wattCalculation(msg.slave,msg.cmd);
-
+            wattCalculation(msg.slave,0);
         }
 
 
@@ -119,7 +120,9 @@ namespace provider_power {
     void ProviderPowerNode::PowerDataCallBack(const interface_rs485::SendRS485Msg::ConstPtr &receiveData) {
 
         if (receiveData->slave == receiveData->SLAVE_powersupply0 or
-            receiveData->slave == receiveData->SLAVE_powersupply1) {
+            receiveData->slave == receiveData->SLAVE_powersupply1 or
+            receiveData->slave == receiveData->SLAVE_powersupply2 or
+            receiveData->slave == receiveData->SLAVE_powersupply3) {
 
             ProviderPowerNode::PublishPowerMsg(receiveData);
 
@@ -226,7 +229,7 @@ namespace provider_power {
 
             for(j=0; j < 6; j++){
 
-                powerInformation[i][j] = 0;
+                powerInformation[i][j] = 0.0;
             }
         }
 

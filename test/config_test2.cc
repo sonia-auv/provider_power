@@ -11,7 +11,7 @@ int argc_g;
 
 union powerData {
     uint8_t Bytes[2];
-    uint16_t data;
+    float data;
 };
 
 uint8_t done;
@@ -26,7 +26,7 @@ public:
     ~mockingPS();
 
 
-    powerData dataVTest1, dataVTest2, dataVTest3, dataCTest1, dataCTest2, dataCTest3, dataVTest, dataCTest;
+    powerData dataVTest, dataCTest;
 
     //ros::Publisher power_publisherTx_ = nh.advertise<interface_rs485::SendRS485Msg>("/interface_rs485/dataTx", 10);
 
@@ -34,12 +34,12 @@ public:
     interface_rs485::SendRS485Msg msgTestC;
 
 
-    const float Vtest1 = 0;      //Test minimal
-    const float Vtest2 = 12234;  //Test nominal
-    const float Vtest3 = 65535;  //Test maximal
-    const float Ctest1 = 0;      //Test minimal
-    const float Ctest2 = 1550;   //Test nominal
-    const float Ctest3 = 65535;  //Test maximal
+    const float Vtest1 = 0.001;   //Test minimal
+    const float Vtest2 = 12.234;  //Test nominal
+    const float Vtest3 = 16.535;  //Test maximal
+    const float Ctest1 = 0.0012;     //Test minimal
+    const float Ctest2 = 4.50;    //Test nominal
+    const float Ctest3 = 9.535;  //Test maximal
 
     void initializeMockTest1();
     void initializeMockTest2();
@@ -51,6 +51,8 @@ public:
 private:
 
     ros::NodeHandlePtr nh_;
+
+    void setData();
 
 };
 
@@ -78,13 +80,8 @@ void mockingPS::initializeMockTest1(){
 
     dataVTest.data = Vtest1;
     dataCTest.data = Ctest1;
-
-
-    msgTestV.data.push_back(dataVTest.Bytes[1]);
-    msgTestV.data.push_back(dataVTest.Bytes[0]);
-
-    msgTestC.data.push_back(dataCTest.Bytes[1]);
-    msgTestC.data.push_back(dataCTest.Bytes[0]);
+    
+    setData();
 
 }
 
@@ -99,11 +96,7 @@ void mockingPS::initializeMockTest2(){
     dataVTest.data = Vtest2;
     dataCTest.data = Ctest2;
 
-    msgTestV.data.push_back(dataVTest.Bytes[1]);
-    msgTestV.data.push_back(dataVTest.Bytes[0]);
-
-    msgTestC.data.push_back(dataCTest.Bytes[1]);
-    msgTestC.data.push_back(dataCTest.Bytes[0]);
+    setData();
 
 }
 
@@ -118,11 +111,21 @@ void mockingPS::initializeMockTest3(){
     dataVTest.data = Vtest3;
     dataCTest.data = Ctest3;
 
-    msgTestV.data.push_back(dataVTest.Bytes[1]);
-    msgTestV.data.push_back(dataVTest.Bytes[0]);
+    setData();
 
-    msgTestC.data.push_back(dataCTest.Bytes[1]);
+}
+
+void mockingPS::setData() {
+
+    msgTestV.data.push_back(dataVTest.Bytes[0]);
+    msgTestV.data.push_back(dataVTest.Bytes[1]);
+    msgTestV.data.push_back(dataVTest.Bytes[2]);
+    msgTestV.data.push_back(dataVTest.Bytes[3]);
+
     msgTestC.data.push_back(dataCTest.Bytes[0]);
+    msgTestC.data.push_back(dataCTest.Bytes[1]);
+    msgTestC.data.push_back(dataCTest.Bytes[2]);
+    msgTestC.data.push_back(dataCTest.Bytes[3]);
 
 }
 
@@ -137,24 +140,28 @@ TEST(TestSuite, testCase1) {
     provider_power::ProviderPowerNode ppn(nh);
 
 
-    done=0;
+    done = 0;
+    ros::Rate loop_rate(1);
     do{
 
         mps.power_publisherTx_.publish(mps.msgTestV);
-        sleep(1);
         mps.power_publisherTx_.publish(mps.msgTestC);
-        sleep(1);
+
+
+        ros::spinOnce();
+        loop_rate.sleep();
 
         done++;
 
-    }while(done <= 4);
+    }while(done <= 2);
+
 
 
     ppn.wattCalculation(0,0);
 
-    uint16_t data = ppn.watt5min[0][0];
+    float data = ppn.watt5min[0][0];
 
-    ASSERT_EQ(data,0);
+    ASSERT_NEAR(data,0,0.001);
 
 }
 
@@ -167,23 +174,26 @@ TEST(TestSuite, testCase2){
 
     provider_power::ProviderPowerNode ppn(nh);
 
-    done=0;
+    done = 0;
+    ros::Rate loop_rate(1);
     do{
 
         mps.power_publisherTx_.publish(mps.msgTestV);
-        sleep(1);
         mps.power_publisherTx_.publish(mps.msgTestC);
-        sleep(1);
+
+
+        ros::spinOnce();
+        loop_rate.sleep();
 
         done++;
 
     }while(done <= 2);
 
-    ppn.wattCalculation(0,0);
+    ppn.wattCalculation(1,2);
 
-    uint16_t data = ppn.watt5min[1][2];
+    float data = ppn.watt5min[1][2];
 
-    ASSERT_EQ(data,0);
+    ASSERT_NEAR(data, 55.053, 0.001);
 
 }
 
@@ -195,23 +205,26 @@ TEST(TestSuite, testCase3){
 
     provider_power::ProviderPowerNode ppn(nh);
 
-    done=0;
+    done = 0;
+    ros::Rate loop_rate(1);
     do{
 
         mps.power_publisherTx_.publish(mps.msgTestV);
-        sleep(1);
         mps.power_publisherTx_.publish(mps.msgTestC);
-        sleep(1);
+
+
+        ros::spinOnce();
+        loop_rate.sleep();
 
         done++;
 
-    }while(done <= 4);
+    }while(done <= 2);
 
-    ppn.wattCalculation(0,0);
+    ppn.wattCalculation(3,1);
 
-    uint16_t data = ppn.watt5min[0][0];
+    float data = ppn.watt5min[3][1];
 
-    ASSERT_EQ(data,0);
+    ASSERT_NEAR(data, 157.661, 0.001);
 
 }
 

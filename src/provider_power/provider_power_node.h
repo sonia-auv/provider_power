@@ -71,12 +71,12 @@ namespace provider_power {
         //const ros::TimerCallback wattCallBack;
         //const ros::TimerCallback wattCallBack(const ros::TimerCallback);
 
-        float watt5min[3][2];
-        float watt1h[3][2];
-        float watttotal[3][2];
+        float watt5min[4][3];
+        float watt1h[4][3];
+        float watttotal[4][3];
 
 
-        float powerInformation[3][5];
+        float powerInformation[4][6];
 
 
 
