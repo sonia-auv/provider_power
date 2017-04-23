@@ -1,6 +1,6 @@
 <launch>
 	<node name="provider_power"
 	    pkg="provider_power"
-	    type="provider_prower_node"
+	    type="provider_power_node"
 	    output="screen" />
 </launch>
