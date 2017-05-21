@@ -96,7 +96,7 @@ namespace provider_power {
 
         }
 
-        if (publishData->cmd >= 16 and publishData->cmd <= 18){
+        if (publishData->cmd >= interface_rs485::SendRS485Msg::CMD_PS_CHECK_12V and publishData->cmd <= interface_rs485::SendRS485Msg::CMD_PS_CHECK_16V_2){
 
             msg.data = publishData->data[0];
 
