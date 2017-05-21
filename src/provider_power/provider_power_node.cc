@@ -51,8 +51,11 @@ namespace provider_power {
         power_subscriberTx_ =
                 nh_->subscribe("/interface_rs485/dataTx", 100, &ProviderPowerNode::PowerDataCallBack, this);
 
-        power_serviceServer_ = nh_->advertiseService("/provider_power/manage_power_supply_bus",
-                                                     &ProviderPowerNode::powerServer, this);
+        power_activation_ = nh_->advertiseService("/provider_power/manage_power_supply_bus",
+                                                     &ProviderPowerNode::powerActivation, this);
+
+        power_check_activation_ = nh_->advertiseService("/provider_power/manage_power_supply_bus",
+                                                        &ProviderPowerNode::powerCheckActivation, this);
 
         ProviderPowerNode::initialize();
 
@@ -82,8 +85,6 @@ namespace provider_power {
         data.Bytes[2] = publishData->data[2];
         data.Bytes[3] = publishData->data[3];
 
-
-
         msg.slave = publishData->slave;
         msg.slave -= interface_rs485::SendRS485Msg::SLAVE_powersupply0;
         msg.cmd = publishData->cmd;
@@ -92,6 +93,12 @@ namespace provider_power {
         if (msg.data >= 0 && msg.data < 1){
 
             msg.data = 0;
+
+        }
+
+        if (publishData->cmd >= 16 and publishData->cmd <= 18){
+
+            msg.data = publishData->data[0];
 
         }
 
@@ -110,8 +117,6 @@ namespace provider_power {
 
     void ProviderPowerNode::PublishPowerData() {
 
-        interface_rs485::SendRS485Msg pollingSlave;
-
         pollPower(interface_rs485::SendRS485Msg::SLAVE_powersupply0);
         pollPower(interface_rs485::SendRS485Msg::SLAVE_powersupply1);
 
@@ -119,9 +124,9 @@ namespace provider_power {
 
     void ProviderPowerNode::PowerDataCallBack(const interface_rs485::SendRS485Msg::ConstPtr &receiveData) {
 
-        if (receiveData->slave == receiveData->SLAVE_powersupply0 or
-            receiveData->slave == receiveData->SLAVE_powersupply1 or
-            receiveData->slave == receiveData->SLAVE_powersupply2 or
+        if (receiveData->slave == receiveData->SLAVE_powersupply0 ||
+            receiveData->slave == receiveData->SLAVE_powersupply1 ||
+            receiveData->slave == receiveData->SLAVE_powersupply2 ||
             receiveData->slave == receiveData->SLAVE_powersupply3) {
 
             ProviderPowerNode::PublishPowerMsg(receiveData);
@@ -130,7 +135,7 @@ namespace provider_power {
 
     }
 
-    bool ProviderPowerNode::powerServer(provider_power::ManagePowerSupplyBus::Request &req,
+    bool ProviderPowerNode::powerActivation(provider_power::ManagePowerSupplyBus::Request &req,
                                         provider_power::ManagePowerSupplyBus::Response &res) {
 
         interface_rs485::SendRS485Msg enablePower;
@@ -150,15 +155,44 @@ namespace provider_power {
 
     }
 
+    bool ProviderPowerNode::powerCheckActivation(provider_power::CheckPowerSupplyActivation::Request &req,
+                                                 provider_power::CheckPowerSupplyActivation::Response &res) {
+        ros::Rate rate(10);
+        uint8_t i = interface_rs485::SendRS485Msg::SLAVE_powersupply0;
+
+        while (i <= interface_rs485::SendRS485Msg::SLAVE_powersupply1){
+
+            pollCmd(i, interface_rs485::SendRS485Msg::CMD_PS_CHECK_12V);
+            rate.sleep();
+            pollCmd(i, interface_rs485::SendRS485Msg::CMD_PS_CHECK_16V_1);
+            rate.sleep();
+            pollCmd(i, interface_rs485::SendRS485Msg::CMD_PS_CHECK_16V_2);
+            rate.sleep();
+
+        }
+
+
+        return true;
+
+    }
+
     void ProviderPowerNode::pollPower(uint8_t slave) {
+        ros::Rate rate(8);
 
         pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_V16_1);
+        rate.sleep();
         pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_V16_2);
+        rate.sleep();
         pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_V12);
+        rate.sleep();
         pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_C16_1);
+        rate.sleep();
         pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_C16_2);
+        rate.sleep();
         pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_C12);
+        rate.sleep();
         pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_temperature);
+        rate.sleep();
         pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_VBatt);
 
     }

@@ -35,15 +35,15 @@ find_package( catkin REQUIRED COMPONENTS
         interface_rs485
         )
 
+add_service_files(DIRECTORY srv
+                  FILES
+                  CheckPowerSupplyActivation.srv
+                  ManagePowerSupplyBus.srv)
 
-file(GLOB srv_files RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/srv/"
-        "${CMAKE_CURRENT_SOURCE_DIR}/srv/*.srv")
-add_service_files(DIRECTORY srv FILES ${srv_files})
-add_message_files(
-        DIRECTORY msg
-        FILES
-        powerMsg.msg
-        powerInfo.msg)
+add_message_files(DIRECTORY msg
+                  FILES
+                  powerMsg.msg
+                  powerInfo.msg)
 
 generate_messages(DEPENDENCIES std_msgs)
 

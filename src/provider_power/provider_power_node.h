@@ -37,6 +37,7 @@
 #include "provider_power/powerInfo.h"
 #include <interface_rs485/SendRS485Msg.h>
 #include <provider_power/ManagePowerSupplyBus.h>
+#include <provider_power/CheckPowerSupplyActivation.h>
 
 namespace provider_power {
 
@@ -57,8 +58,11 @@ namespace provider_power {
 
         void PowerDataCallBack(const interface_rs485::SendRS485Msg::ConstPtr &receiveData);
 
-        bool powerServer(provider_power::ManagePowerSupplyBus::Request &req,
+        bool powerActivation(provider_power::ManagePowerSupplyBus::Request &req,
                          provider_power::ManagePowerSupplyBus::Response &res);
+
+        bool powerCheckActivation(provider_power::CheckPowerSupplyActivation::Request &req,
+                             provider_power::CheckPowerSupplyActivation::Response &res);
 
         void pollPower(uint8_t slave);
 
@@ -91,7 +95,8 @@ namespace provider_power {
         ros::Publisher power_publisherRx_;
         ros::Publisher power_publisherInfo_;
         ros::Subscriber power_subscriberTx_;
-        ros::ServiceServer power_serviceServer_;
+        ros::ServiceServer power_activation_;
+        ros::ServiceServer power_check_activation_;
         ros::Timer timerForWatt_;
 
 
