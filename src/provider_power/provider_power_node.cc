@@ -54,7 +54,7 @@ namespace provider_power {
         power_activation_ = nh_->advertiseService("/provider_power/manage_power_supply_bus",
                                                      &ProviderPowerNode::powerActivation, this);
 
-        power_check_activation_ = nh_->advertiseService("/provider_power/manage_power_supply_bus",
+        power_check_activation_ = nh_->advertiseService("/provider_power/check_power_supply_bus",
                                                         &ProviderPowerNode::powerCheckActivation, this);
 
         ProviderPowerNode::initialize();
@@ -168,6 +168,8 @@ namespace provider_power {
             rate.sleep();
             pollCmd(i, interface_rs485::SendRS485Msg::CMD_PS_CHECK_16V_2);
             rate.sleep();
+
+            i++;
 
         }
 
