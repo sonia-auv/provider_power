@@ -119,6 +119,9 @@ namespace provider_power {
 
         pollPower(interface_rs485::SendRS485Msg::SLAVE_powersupply0);
         pollPower(interface_rs485::SendRS485Msg::SLAVE_powersupply1);
+        pollPower(interface_rs485::SendRS485Msg::SLAVE_powersupply2);
+        pollPower(interface_rs485::SendRS485Msg::SLAVE_powersupply3);
+
 
     }
 
@@ -160,7 +163,7 @@ namespace provider_power {
         ros::Rate rate(10);
         uint8_t i = interface_rs485::SendRS485Msg::SLAVE_powersupply0;
 
-        while (i <= interface_rs485::SendRS485Msg::SLAVE_powersupply1){
+        while (i <= interface_rs485::SendRS485Msg::SLAVE_powersupply3){
 
             pollCmd(i, interface_rs485::SendRS485Msg::CMD_PS_CHECK_12V);
             rate.sleep();
