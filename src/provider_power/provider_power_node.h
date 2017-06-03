@@ -37,7 +37,6 @@
 #include "provider_power/powerInfo.h"
 #include <interface_rs485/SendRS485Msg.h>
 #include <provider_power/ManagePowerSupplyBus.h>
-#include <provider_power/CheckPowerSupplyActivation.h>
 
 namespace provider_power {
 

@@ -37,7 +37,6 @@ find_package( catkin REQUIRED COMPONENTS
 
 add_service_files(DIRECTORY srv
                   FILES
-                  CheckPowerSupplyActivation.srv
                   ManagePowerSupplyBus.srv)
 
 add_message_files(DIRECTORY msg
