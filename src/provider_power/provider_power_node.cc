@@ -54,9 +54,6 @@ namespace provider_power {
         power_activation_ = nh_->advertiseService("/provider_power/manage_power_supply_bus",
                                                      &ProviderPowerNode::powerActivation, this);
 
-        power_check_activation_ = nh_->advertiseService("/provider_power/check_power_supply_bus",
-                                                        &ProviderPowerNode::powerCheckActivation, this);
-
         ProviderPowerNode::initialize();
 
         //timerForWatt_ = nh_->createTimer(ros::Duration(1.0), &ProviderPowerNode::wattCallBack, true);
@@ -85,6 +82,8 @@ namespace provider_power {
         data.Bytes[2] = publishData->data[2];
         data.Bytes[3] = publishData->data[3];
 
+
+
         msg.slave = publishData->slave;
         msg.slave -= interface_rs485::SendRS485Msg::SLAVE_powersupply0;
         msg.cmd = publishData->cmd;
@@ -103,14 +102,6 @@ namespace provider_power {
         }
 
         power_publisher_.publish(msg);
-
-
-        if (msg.cmd < interface_rs485::SendRS485Msg::CMD_PS_temperature) {
-
-            powerInformation[msg.slave][msg.cmd] = msg.data;
-            wattCalculation(msg.slave,0);
-        }
-
 
     }
 
@@ -158,8 +149,7 @@ namespace provider_power {
 
     }
 
-    bool ProviderPowerNode::powerCheckActivation(provider_power::CheckPowerSupplyActivation::Request &req,
-                                                 provider_power::CheckPowerSupplyActivation::Response &res) {
+    void  ProviderPowerNode::powerCheckActivation() {
         ros::Rate rate(10);
         uint8_t i = interface_rs485::SendRS485Msg::SLAVE_powersupply0;
 
@@ -175,9 +165,6 @@ namespace provider_power {
             i++;
 
         }
-
-
-        return true;
 
     }
 
@@ -199,6 +186,8 @@ namespace provider_power {
         pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_temperature);
         rate.sleep();
         pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_VBatt);
+        rate.sleep();
+        powerCheckActivation();
 
     }
 

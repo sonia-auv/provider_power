@@ -61,8 +61,7 @@ namespace provider_power {
         bool powerActivation(provider_power::ManagePowerSupplyBus::Request &req,
                          provider_power::ManagePowerSupplyBus::Response &res);
 
-        bool powerCheckActivation(provider_power::CheckPowerSupplyActivation::Request &req,
-                             provider_power::CheckPowerSupplyActivation::Response &res);
+        void powerCheckActivation();
 
         void pollPower(uint8_t slave);
 
@@ -96,7 +95,6 @@ namespace provider_power {
         ros::Publisher power_publisherInfo_;
         ros::Subscriber power_subscriberTx_;
         ros::ServiceServer power_activation_;
-        ros::ServiceServer power_check_activation_;
         ros::Timer timerForWatt_;
 
 
