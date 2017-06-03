@@ -51,6 +51,9 @@ namespace provider_power {
         power_subscriberTx_ =
                 nh_->subscribe("/interface_rs485/dataTx", 100, &ProviderPowerNode::PowerDataCallBack, this);
 
+        activate_all_ps_ =
+                nh_->subscribe("/provider_power/activate_all_ps", 100, &ProviderPowerNode::ActivateAllPsCallBack, this);
+
         power_activation_ = nh_->advertiseService("/provider_power/manage_power_supply_bus",
                                                      &ProviderPowerNode::powerActivation, this);
 
@@ -134,11 +137,6 @@ namespace provider_power {
 
         interface_rs485::SendRS485Msg enablePower;
 
-        static uint8_t swapSlave[4] = {enablePower.SLAVE_powersupply0, enablePower.SLAVE_powersupply1,
-                                       enablePower.SLAVE_powersupply2, enablePower.SLAVE_powersupply3};
-        static uint8_t swapCmd[3] = {enablePower.CMD_PS_ACT_12V, enablePower.CMD_PS_ACT_16V_1,
-                                     enablePower.CMD_PS_ACT_16V_2};
-
         enablePower.slave = swapSlave[req.slave];
         enablePower.cmd = swapCmd[req.bus];
         enablePower.data.push_back(req.state);
@@ -165,6 +163,18 @@ namespace provider_power {
             i++;
 
         }
+
+    }
+
+    void ProviderPowerNode::ActivateAllPsCallBack(const provider_power::activateAllPS::ConstPtr &receiveData){
+
+        interface_rs485::SendRS485Msg enablePower;
+
+        enablePower.slave = swapSlave[receiveData->slave];
+        enablePower.cmd = swapCmd[receiveData->bus];
+        enablePower.data.push_back(receiveData->data);
+
+        power_publisherRx_.publish(enablePower);
 
     }
 

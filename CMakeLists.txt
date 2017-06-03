@@ -42,7 +42,8 @@ add_service_files(DIRECTORY srv
 add_message_files(DIRECTORY msg
                   FILES
                   powerMsg.msg
-                  powerInfo.msg)
+                  powerInfo.msg
+                  activateAllPS.msg)
 
 generate_messages(DEPENDENCIES std_msgs)
 

@@ -37,6 +37,7 @@
 #include "provider_power/powerInfo.h"
 #include <interface_rs485/SendRS485Msg.h>
 #include <provider_power/ManagePowerSupplyBus.h>
+#include <provider_power/activateAllPS.h>
 
 namespace provider_power {
 
@@ -57,6 +58,8 @@ namespace provider_power {
 
         void PowerDataCallBack(const interface_rs485::SendRS485Msg::ConstPtr &receiveData);
 
+        void ActivateAllPsCallBack(const provider_power::activateAllPS::ConstPtr &receiveData);
+
         bool powerActivation(provider_power::ManagePowerSupplyBus::Request &req,
                          provider_power::ManagePowerSupplyBus::Response &res);
 
@@ -69,6 +72,11 @@ namespace provider_power {
         void wattCalculation(const uint8_t slave, const uint8_t cmd);
 
         void initialize();
+
+        uint8_t swapSlave[4] = {interface_rs485::SendRS485Msg::SLAVE_powersupply0, interface_rs485::SendRS485Msg::SLAVE_powersupply1,
+                                       interface_rs485::SendRS485Msg::SLAVE_powersupply2, interface_rs485::SendRS485Msg::SLAVE_powersupply3};
+        uint8_t swapCmd[3] = {interface_rs485::SendRS485Msg::CMD_PS_ACT_12V, interface_rs485::SendRS485Msg::CMD_PS_ACT_16V_1,
+                                     interface_rs485::SendRS485Msg::CMD_PS_ACT_16V_2};
 
         //const ros::TimerCallback wattCallBack;
         //const ros::TimerCallback wattCallBack(const ros::TimerCallback);
@@ -93,6 +101,7 @@ namespace provider_power {
         ros::Publisher power_publisherRx_;
         ros::Publisher power_publisherInfo_;
         ros::Subscriber power_subscriberTx_;
+        ros::Subscriber activate_all_ps_;
         ros::ServiceServer power_activation_;
         ros::Timer timerForWatt_;
 
