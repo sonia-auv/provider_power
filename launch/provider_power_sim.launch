@@ -1,0 +1,6 @@
+<launch>
+	<node name="provider_power"
+	    pkg="provider_power"
+	    type="sim_power.py"
+	    output="screen" />
+</launch>
