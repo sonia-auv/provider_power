@@ -179,25 +179,17 @@ namespace provider_power {
     }
 
     void ProviderPowerNode::pollPower(uint8_t slave) {
-        ros::Rate rate(8);
+        ros::Rate rate(4);
 
         pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_V16_1);
-        rate.sleep();
         pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_V16_2);
-        rate.sleep();
-        pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_V12);
-        rate.sleep();
         pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_C16_1);
-        rate.sleep();
         pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_C16_2);
-        rate.sleep();
         pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_C12);
-        rate.sleep();
         pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_temperature);
-        rate.sleep();
         pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_VBatt);
-        rate.sleep();
         powerCheckActivation();
+        rate.sleep();
 
     }
 
