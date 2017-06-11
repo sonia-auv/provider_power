@@ -73,16 +73,6 @@ namespace provider_power {
 
 //==============================================================================
 // M E T H O D   S E C T I O N
-    void ProviderPowerNode::PollAllPs(){
-        ros::Rate loop_rate(1);
-        while (ros::ok()) {
-            PublishPowerData();
-            loop_rate.sleep();
-        }
-    }
-
-
-
 
     void ProviderPowerNode::PublishPowerMsg(const interface_rs485::SendRS485Msg::ConstPtr &publishData) {
 

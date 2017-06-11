@@ -69,8 +69,6 @@ namespace provider_power {
 
         void pollCmd(uint8_t slave, uint8_t cmd);
 
-        void PollAllPs();
-
         void wattCalculation(const uint8_t slave, const uint8_t cmd);
 
         void initialize();
