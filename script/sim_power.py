@@ -9,13 +9,14 @@ def sim_power():
     rospy.init_node('sim_power', anonymous=True)
     pub = rospy.Publisher('/provider_power/power', powerMsg, queue_size=10)
     rate = rospy.Rate(1)  # 10hz
+    m = 0
     while not rospy.is_shutdown():
         msg = powerMsg()
         for i in range(0, 4):
             for j in range(0, 8):
                 msg.slave = i
                 msg.cmd = j
-                msg.data = random.uniform(12.5, 17.3)
+                msg.data = random.uniform(15.6, 16)
                 pub.publish(msg)
         rate.sleep()
 
