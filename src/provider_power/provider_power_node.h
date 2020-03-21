@@ -63,8 +63,6 @@ namespace provider_power {
         bool powerActivation(provider_power::ManagePowerSupplyBus::Request &req,
                          provider_power::ManagePowerSupplyBus::Response &res);
 
-        void powerCheckActivation();
-
         void pollPower(uint8_t slave);
 
         void pollCmd(uint8_t slave, uint8_t cmd);

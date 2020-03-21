@@ -147,25 +147,6 @@ namespace provider_power {
 
     }
 
-    void  ProviderPowerNode::powerCheckActivation() {
-        ros::Rate rate(8);
-        uint8_t i = interface_rs485::SendRS485Msg::SLAVE_powersupply0;
-
-        while (i <= interface_rs485::SendRS485Msg::SLAVE_powersupply3){
-
-            pollCmd(i, interface_rs485::SendRS485Msg::CMD_PS_CHECK_12V);
-            rate.sleep();
-            pollCmd(i, interface_rs485::SendRS485Msg::CMD_PS_CHECK_16V_1);
-            rate.sleep();
-            pollCmd(i, interface_rs485::SendRS485Msg::CMD_PS_CHECK_16V_2);
-            rate.sleep();
-
-            i++;
-
-        }
-
-    }
-
     void ProviderPowerNode::ActivateAllPsCallBack(const provider_power::activateAllPS::ConstPtr &receiveData){
 
         interface_rs485::SendRS485Msg enablePower;
@@ -173,13 +154,13 @@ namespace provider_power {
         enablePower.slave = swapSlave[receiveData->slave];
         enablePower.cmd = swapCmd[receiveData->bus];
         enablePower.data.push_back(receiveData->data);
-
+        sleep(500);
         power_publisherRx_.publish(enablePower);
 
     }
 
     void ProviderPowerNode::pollPower(uint8_t slave) {
-        ros::Rate rate(8);
+        ros::Rate rate(1);
 
         pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_V16_1);
         rate.sleep();
@@ -197,7 +178,11 @@ namespace provider_power {
         rate.sleep();
         pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_VBatt);
         rate.sleep();
-        powerCheckActivation();
+        pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_CHECK_12V);
+        rate.sleep();
+        pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_CHECK_16V_1);
+        rate.sleep();
+        pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_CHECK_16V_2);
         rate.sleep();
 
     }
