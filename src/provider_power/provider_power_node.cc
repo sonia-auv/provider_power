@@ -57,7 +57,7 @@ namespace provider_power {
         power_activation_ = nh_->advertiseService("/provider_power/manage_power_supply_bus",
                                                      &ProviderPowerNode::powerActivation, this);
 
-        ProviderPowerNode::initialize();
+        //ProviderPowerNode::initialize();
 
         //timerForWatt_ = nh_->createTimer(ros::Duration(1.0), &ProviderPowerNode::wattCallBack, true);
 
@@ -147,20 +147,32 @@ namespace provider_power {
 
     }
 
-    void ProviderPowerNode::ActivateAllPsCallBack(const provider_power::activateAllPS::ConstPtr &receiveData){
-
+    void ProviderPowerNode::powerActivation(uint8_t slave, uint8_t cmd, uint8_t state)
+    {
         interface_rs485::SendRS485Msg enablePower;
 
-        enablePower.slave = swapSlave[receiveData->slave];
-        enablePower.cmd = swapCmd[receiveData->bus];
-        enablePower.data.push_back(receiveData->data);
-        sleep(500);
-        power_publisherRx_.publish(enablePower);
+        enablePower.slave = slave;
+        enablePower.cmd = cmd;
+        enablePower.data.push_back(state);
 
+        power_publisherRx_.publish(enablePower);
+    }
+    
+    void ProviderPowerNode::ActivateAllPsCallBack(const provider_power::activateAllPS::ConstPtr &receiveData)
+    {
+        int i,j;
+
+        for(i = 1; i < 3; ++i)
+        {
+            for(j = 0; j < 4 ; ++j)
+            {
+                powerActivation(swapSlave[j], swapCmd[i], receiveData->data);
+            }
+        }
     }
 
     void ProviderPowerNode::pollPower(uint8_t slave) {
-        ros::Rate rate(1);
+        ros::Rate rate(7);
 
         pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_V16_1);
         rate.sleep();
@@ -199,7 +211,7 @@ namespace provider_power {
 
     }
 
-    void ProviderPowerNode::wattCalculation(const uint8_t slave, const uint8_t cmd) {
+    /*void ProviderPowerNode::wattCalculation(const uint8_t slave, const uint8_t cmd) {
 
         provider_power::powerInfo msg;
 
@@ -257,6 +269,6 @@ namespace provider_power {
             }
         }
 
-    }
+    }*/
 
 }

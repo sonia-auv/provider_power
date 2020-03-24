@@ -63,13 +63,15 @@ namespace provider_power {
         bool powerActivation(provider_power::ManagePowerSupplyBus::Request &req,
                          provider_power::ManagePowerSupplyBus::Response &res);
 
+        void powerActivation(uint8_t slave, uint8_t cmd, uint8_t state);
+
         void pollPower(uint8_t slave);
 
         void pollCmd(uint8_t slave, uint8_t cmd);
 
-        void wattCalculation(const uint8_t slave, const uint8_t cmd);
+        //void wattCalculation(const uint8_t slave, const uint8_t cmd);
 
-        void initialize();
+        //void initialize();
 
         uint8_t swapSlave[4] = {interface_rs485::SendRS485Msg::SLAVE_powersupply0, interface_rs485::SendRS485Msg::SLAVE_powersupply1,
                                        interface_rs485::SendRS485Msg::SLAVE_powersupply2, interface_rs485::SendRS485Msg::SLAVE_powersupply3};
