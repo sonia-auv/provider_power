@@ -31,6 +31,7 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
 find_package( catkin REQUIRED COMPONENTS
         roscpp
         std_msgs
+        sonia_msgs
         message_generation
         )
 
@@ -53,6 +54,7 @@ catkin_package(
         CATKIN_DEPENDS
         roscpp
         std_msgs
+        sonia_msgs
         message_runtime
 )
 
