@@ -32,7 +32,6 @@ find_package( catkin REQUIRED COMPONENTS
         roscpp
         std_msgs
         message_generation
-        interface_rs485
         )
 
 add_service_files(DIRECTORY srv
@@ -55,7 +54,6 @@ catkin_package(
         roscpp
         std_msgs
         message_runtime
-        interface_rs485
 )
 
 
@@ -87,7 +85,7 @@ add_executable( ${TARGET_NAME}
 target_link_libraries( ${TARGET_NAME} ${catkin_LIBRARIES})
 set_target_properties( ${TARGET_NAME} PROPERTIES LINKER_LANGUAGE CXX )
 add_dependencies(${PROJECT_NAME}_node
-        ${PROJECT_NAME}_generate_messages_cpp)
+        ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
 #==========================================================================
 # U N I T   T E S T S
 if (${CATKIN_ENABLE_TESTING})
