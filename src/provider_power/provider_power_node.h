@@ -33,11 +33,11 @@
 
 #include <ros/ros.h>
 #include <geometry_msgs/Twist.h>
-#include "provider_power/powerMsg.h"
-#include "provider_power/powerInfo.h"
+#include <sonia_msgs/PowerMsg.h>
+#include <sonia_msgs/PowerInfo.h>
 #include <sonia_msgs/SendRS485Msg.h>
-#include <provider_power/ManagePowerSupplyBus.h>
-#include <provider_power/activateAllPS.h>
+#include <sonia_msgs/ManagePowerSupplyBus.h>
+#include <sonia_msgs/ActivateAllPS.h>
 
 namespace provider_power {
 
@@ -58,10 +58,10 @@ namespace provider_power {
 
         void PowerDataCallBack(const sonia_msgs::SendRS485Msg::ConstPtr &receiveData);
 
-        void ActivateAllPsCallBack(const provider_power::activateAllPS::ConstPtr &receiveData);
+        void ActivateAllPsCallBack(const sonia_msgs::ActivateAllPS::ConstPtr &receiveData);
 
-        bool powerActivation(provider_power::ManagePowerSupplyBus::Request &req,
-                         provider_power::ManagePowerSupplyBus::Response &res);
+        bool powerActivation(sonia_msgs::ManagePowerSupplyBus::Request &req,
+                         sonia_msgs::ManagePowerSupplyBus::Response &res);
 
         void powerCheckActivation();
 

@@ -40,13 +40,13 @@ namespace provider_power {
             : nh_(nh) {
 
         power_publisher_ =
-                nh_->advertise<provider_power::powerMsg>("/provider_power/power", 10);
+                nh_->advertise<sonia_msgs::PowerMsg>("/provider_power/power", 10);
 
         power_publisherRx_ =
                 nh_->advertise<sonia_msgs::SendRS485Msg>("/interface_rs485/dataRx", 10);
 
         power_publisherInfo_ =
-                nh_->advertise<provider_power::powerInfo>("/provider_power/powerInfo", 10);
+                nh_->advertise<sonia_msgs::PowerInfo>("/provider_power/powerInfo", 10);
 
         power_subscriberTx_ =
                 nh_->subscribe("/interface_rs485/dataTx", 100, &ProviderPowerNode::PowerDataCallBack, this);
@@ -76,7 +76,7 @@ namespace provider_power {
 
     void ProviderPowerNode::PublishPowerMsg(const sonia_msgs::SendRS485Msg::ConstPtr &publishData) {
 
-        provider_power::powerMsg msg;
+        sonia_msgs::PowerMsg msg;
 
         powerData data;
 
@@ -132,8 +132,8 @@ namespace provider_power {
 
     }
 
-    bool ProviderPowerNode::powerActivation(provider_power::ManagePowerSupplyBus::Request &req,
-                                        provider_power::ManagePowerSupplyBus::Response &res) {
+    bool ProviderPowerNode::powerActivation(sonia_msgs::ManagePowerSupplyBus::Request &req,
+                                        sonia_msgs::ManagePowerSupplyBus::Response &res) {
 
         sonia_msgs::SendRS485Msg enablePower;
 
@@ -166,7 +166,7 @@ namespace provider_power {
 
     }
 
-    void ProviderPowerNode::ActivateAllPsCallBack(const provider_power::activateAllPS::ConstPtr &receiveData){
+    void ProviderPowerNode::ActivateAllPsCallBack(const sonia_msgs::ActivateAllPS::ConstPtr &receiveData){
 
         sonia_msgs::SendRS485Msg enablePower;
 
@@ -207,7 +207,7 @@ namespace provider_power {
 
     void ProviderPowerNode::wattCalculation(const uint8_t slave, const uint8_t cmd) {
 
-        provider_power::powerInfo msg;
+        sonia_msgs::PowerInfo msg;
 
         msg.slave = slave;
         msg.bus = cmd;
