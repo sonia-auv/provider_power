@@ -73,8 +73,10 @@ add_executable( ${TARGET_NAME}
 target_link_libraries( ${TARGET_NAME} ${catkin_LIBRARIES})
 set_target_properties( ${TARGET_NAME} PROPERTIES LINKER_LANGUAGE CXX )
 add_dependencies(${PROJECT_NAME}_node ${catkin_EXPORTED_TARGETS})
+
 #==========================================================================
 # U N I T   T E S T S
-if (${CATKIN_ENABLE_TESTING})
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/test)
-endif ()
+# uncomment for test
+#if (${CATKIN_ENABLE_TESTING})
+#    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/test)
+#endif ()
