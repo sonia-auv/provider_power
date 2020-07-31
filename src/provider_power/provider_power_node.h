@@ -33,11 +33,11 @@
 
 #include <ros/ros.h>
 #include <geometry_msgs/Twist.h>
-#include <sonia_msgs/PowerMsg.h>
-#include <sonia_msgs/PowerInfo.h>
-#include <sonia_msgs/SendRS485Msg.h>
-#include <sonia_msgs/ManagePowerSupplyBus.h>
-#include <sonia_msgs/ActivateAllPS.h>
+#include <sonia_common/PowerMsg.h>
+#include <sonia_common/PowerInfo.h>
+#include <sonia_common/SendRS485Msg.h>
+#include <sonia_common/ManagePowerSupplyBus.h>
+#include <sonia_common/ActivateAllPS.h>
 
 namespace provider_power {
 
@@ -52,16 +52,16 @@ namespace provider_power {
 
         //============================================================================
         // P U B L I C   M E T H O D S
-        void PublishPowerMsg(const sonia_msgs::SendRS485Msg::ConstPtr &publishData);
+        void PublishPowerMsg(const sonia_common::SendRS485Msg::ConstPtr &publishData);
 
         void PublishPowerData();
 
-        void PowerDataCallBack(const sonia_msgs::SendRS485Msg::ConstPtr &receiveData);
+        void PowerDataCallBack(const sonia_common::SendRS485Msg::ConstPtr &receiveData);
 
-        void ActivateAllPsCallBack(const sonia_msgs::ActivateAllPS::ConstPtr &receiveData);
+        void ActivateAllPsCallBack(const sonia_common::ActivateAllPS::ConstPtr &receiveData);
 
-        bool powerActivation(sonia_msgs::ManagePowerSupplyBus::Request &req,
-                         sonia_msgs::ManagePowerSupplyBus::Response &res);
+        bool powerActivation(sonia_common::ManagePowerSupplyBus::Request &req,
+                         sonia_common::ManagePowerSupplyBus::Response &res);
 
         void powerCheckActivation();
 
@@ -73,10 +73,10 @@ namespace provider_power {
 
         void initialize();
 
-        uint8_t swapSlave[4] = {sonia_msgs::SendRS485Msg::SLAVE_powersupply0, sonia_msgs::SendRS485Msg::SLAVE_powersupply1,
-                                       sonia_msgs::SendRS485Msg::SLAVE_powersupply2, sonia_msgs::SendRS485Msg::SLAVE_powersupply3};
-        uint8_t swapCmd[3] = {sonia_msgs::SendRS485Msg::CMD_PS_ACT_12V, sonia_msgs::SendRS485Msg::CMD_PS_ACT_16V_1,
-                                     sonia_msgs::SendRS485Msg::CMD_PS_ACT_16V_2};
+        uint8_t swapSlave[4] = {sonia_common::SendRS485Msg::SLAVE_powersupply0, sonia_common::SendRS485Msg::SLAVE_powersupply1,
+                                       sonia_common::SendRS485Msg::SLAVE_powersupply2, sonia_common::SendRS485Msg::SLAVE_powersupply3};
+        uint8_t swapCmd[3] = {sonia_common::SendRS485Msg::CMD_PS_ACT_12V, sonia_common::SendRS485Msg::CMD_PS_ACT_16V_1,
+                                     sonia_common::SendRS485Msg::CMD_PS_ACT_16V_2};
 
         //const ros::TimerCallback wattCallBack;
         //const ros::TimerCallback wattCallBack(const ros::TimerCallback);

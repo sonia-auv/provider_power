@@ -31,7 +31,7 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
 find_package( catkin REQUIRED COMPONENTS
         roscpp
         std_msgs
-        sonia_msgs
+        sonia_common
         )
 
 # Declare this project as a catkin package and export the necessary build flags
@@ -41,7 +41,7 @@ catkin_package(
         CATKIN_DEPENDS
         roscpp
         std_msgs
-        sonia_msgs
+        sonia_common
 )
 
 
