@@ -73,27 +73,10 @@ namespace provider_power {
 
         void pollCmd(uint8_t slave, uint8_t cmd);
 
-        //void wattCalculation(const uint8_t slave, const uint8_t cmd);
-
-        //void initialize();
-
         uint8_t swapSlave[4] = {sonia_common::SendRS485Msg::SLAVE_powersupply0, sonia_common::SendRS485Msg::SLAVE_powersupply1,
                                        sonia_common::SendRS485Msg::SLAVE_powersupply2, sonia_common::SendRS485Msg::SLAVE_powersupply3};
         uint8_t swapCmd[3] = {sonia_common::SendRS485Msg::CMD_PS_ACT_12V, sonia_common::SendRS485Msg::CMD_PS_ACT_16V_1,
                                      sonia_common::SendRS485Msg::CMD_PS_ACT_16V_2};
-
-        //const ros::TimerCallback wattCallBack;
-        //const ros::TimerCallback wattCallBack(const ros::TimerCallback);
-
-        float watt5min[4][3];
-        float watt1h[4][3];
-        float watttotal[4][3];
-
-
-        float powerInformation[4][6];
-
-        //============================================================================
-        // P R I V A T E   M E M B E R S
 
         ros::NodeHandlePtr nh_;
         ros::Publisher power_publisher_;
@@ -104,11 +87,8 @@ namespace provider_power {
         ros::ServiceServer power_activation_;
         ros::Timer timerForWatt_;
 
-
         const uint8_t next = 3;
-
         const uint16_t convert = 1000;
-
 
         union powerData {
             uint8_t Bytes[4];
@@ -116,10 +96,7 @@ namespace provider_power {
         };
 
         uint16_t nbTime[4];
-
     };
-
-
 }  // namespace provider_power
 
 
