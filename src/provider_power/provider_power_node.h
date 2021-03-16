@@ -45,13 +45,17 @@ namespace provider_power {
     public:
         //============================================================================
         // P U B L I C   C / D T O R S
-
         ProviderPowerNode(ros::NodeHandlePtr &nh);
-
         ~ProviderPowerNode();
 
-        //============================================================================
+        //==========================================================================
         // P U B L I C   M E T H O D S
+        void Spin();
+
+    private:
+        //============================================================================
+        // P R I V A T E   M E T H O D S
+        
         void PublishPowerMsg(const sonia_common::SendRS485Msg::ConstPtr &publishData);
 
         void PublishPowerData();
@@ -88,13 +92,8 @@ namespace provider_power {
 
         float powerInformation[4][6];
 
-
-
-    private:
         //============================================================================
         // P R I V A T E   M E M B E R S
-
-
 
         ros::NodeHandlePtr nh_;
         ros::Publisher power_publisher_;

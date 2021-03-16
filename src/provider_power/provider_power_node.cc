@@ -74,6 +74,18 @@ namespace provider_power {
 //==============================================================================
 // M E T H O D   S E C T I O N
 
+    void ProviderPowerNode::Spin(){
+        ros::Rate r(10); // 10 hz
+
+        while(ros::ok())
+        {
+            ros::spinOnce();
+
+            PublishPowerData();
+        }
+        r.sleep();
+    }
+
     void ProviderPowerNode::PublishPowerMsg(const sonia_common::SendRS485Msg::ConstPtr &publishData) {
 
         sonia_common::PowerMsg msg;
@@ -116,7 +128,6 @@ namespace provider_power {
         pollPower(sonia_common::SendRS485Msg::SLAVE_powersupply2);
         pollPower(sonia_common::SendRS485Msg::SLAVE_powersupply3);
 
-
     }
 
     void ProviderPowerNode::PowerDataCallBack(const sonia_common::SendRS485Msg::ConstPtr &receiveData) {
@@ -127,9 +138,7 @@ namespace provider_power {
             receiveData->slave == receiveData->SLAVE_powersupply3) {
 
             ProviderPowerNode::PublishPowerMsg(receiveData);
-
         }
-
     }
 
     bool ProviderPowerNode::powerActivation(sonia_common::ManagePowerSupplyBus::Request &req,
@@ -148,7 +157,7 @@ namespace provider_power {
     }
     void ProviderPowerNode::powerActivation(uint8_t slave, uint8_t cmd, uint8_t state)
     {
-        interface_rs485::SendRS485Msg enablePower;
+        sonia_common::SendRS485Msg enablePower;
 
         enablePower.slave = slave;
         enablePower.cmd = cmd;
@@ -157,7 +166,7 @@ namespace provider_power {
         power_publisherRx_.publish(enablePower);
     }
     
-    void ProviderPowerNode::ActivateAllPsCallBack(const provider_power::activateAllPS::ConstPtr &receiveData)
+    void ProviderPowerNode::ActivateAllPsCallBack(const sonia_common::ActivateAllPS::ConstPtr &receiveData)
     {
         int i,j;
 
@@ -173,27 +182,27 @@ namespace provider_power {
     void ProviderPowerNode::pollPower(uint8_t slave) {
         ros::Rate rate(7);
 
-        pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_V16_1);
+        pollCmd(slave, sonia_common::SendRS485Msg::CMD_PS_V16_1);
         rate.sleep();
-        pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_V16_2);
+        pollCmd(slave, sonia_common::SendRS485Msg::CMD_PS_V16_2);
         rate.sleep();
-        pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_V12);
+        pollCmd(slave, sonia_common::SendRS485Msg::CMD_PS_V12);
         rate.sleep();
-        pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_C16_1);
+        pollCmd(slave, sonia_common::SendRS485Msg::CMD_PS_C16_1);
         rate.sleep();
-        pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_C16_2);
+        pollCmd(slave, sonia_common::SendRS485Msg::CMD_PS_C16_2);
         rate.sleep();
-        pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_C12);
+        pollCmd(slave, sonia_common::SendRS485Msg::CMD_PS_C12);
         rate.sleep();
-        pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_temperature);
+        pollCmd(slave, sonia_common::SendRS485Msg::CMD_PS_temperature);
         rate.sleep();
-        pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_VBatt);
+        pollCmd(slave, sonia_common::SendRS485Msg::CMD_PS_VBatt);
         rate.sleep();
-        pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_CHECK_12V);
+        pollCmd(slave, sonia_common::SendRS485Msg::CMD_PS_CHECK_12V);
         rate.sleep();
-        pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_CHECK_16V_1);
+        pollCmd(slave, sonia_common::SendRS485Msg::CMD_PS_CHECK_16V_1);
         rate.sleep();
-        pollCmd(slave, interface_rs485::SendRS485Msg::CMD_PS_CHECK_16V_2);
+        pollCmd(slave, sonia_common::SendRS485Msg::CMD_PS_CHECK_16V_2);
 
         rate.sleep();
 
