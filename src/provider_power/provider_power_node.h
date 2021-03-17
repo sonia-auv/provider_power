@@ -81,11 +81,10 @@ namespace provider_power {
         ros::NodeHandlePtr nh_;
         ros::Publisher power_publisher_;
         ros::Publisher power_publisherRx_;
-        ros::Publisher power_publisherInfo_;
+        //ros::Publisher power_publisherInfo_;
         ros::Subscriber power_subscriberTx_;
         ros::Subscriber activate_all_ps_;
         ros::ServiceServer power_activation_;
-        ros::Timer timerForWatt_;
 
         const uint8_t next = 3;
         const uint16_t convert = 1000;

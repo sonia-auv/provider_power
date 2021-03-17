@@ -45,8 +45,8 @@ namespace provider_power {
         power_publisherRx_ =
                 nh_->advertise<sonia_common::SendRS485Msg>("/interface_rs485/dataRx", 10);
 
-        power_publisherInfo_ =
-                nh_->advertise<sonia_common::PowerInfo>("/provider_power/powerInfo", 10);
+        //power_publisherInfo_ =
+        //        nh_->advertise<sonia_common::PowerInfo>("/provider_power/powerInfo", 10);
 
         power_subscriberTx_ =
                 nh_->subscribe("/interface_rs485/dataTx", 100, &ProviderPowerNode::PowerDataCallBack, this);
@@ -56,7 +56,6 @@ namespace provider_power {
 
         power_activation_ = nh_->advertiseService("/provider_power/manage_power_supply_bus",
                                                      &ProviderPowerNode::powerActivation, this);
-
     }
 
 //------------------------------------------------------------------------------
@@ -71,12 +70,11 @@ namespace provider_power {
 // M E T H O D   S E C T I O N
 
     void ProviderPowerNode::Spin(){
-        ros::Rate r(10); // 10 hz
+        ros::Rate r(5); // 10 hz
 
         while(ros::ok())
         {
             ros::spinOnce();
-
             PublishPowerData();
         }
         r.sleep();
@@ -97,6 +95,10 @@ namespace provider_power {
         msg.slave -= sonia_common::SendRS485Msg::SLAVE_powersupply0;
         msg.cmd = publishData->cmd;
         msg.data = data.info;
+
+        ROS_INFO("Slave : %d", msg.slave);
+        ROS_INFO("Command : %d", msg.cmd);
+        ROS_INFO("Value : %f", msg.data);
 
         if (msg.data >= 0 && msg.data < 1){
 
