@@ -45,9 +45,6 @@ namespace provider_power {
         power_publisherRx_ =
                 nh_->advertise<sonia_common::SendRS485Msg>("/interface_rs485/dataRx", 10);
 
-        //power_publisherInfo_ =
-        //        nh_->advertise<sonia_common::PowerInfo>("/provider_power/powerInfo", 10);
-
         power_subscriberTx_ =
                 nh_->subscribe("/interface_rs485/dataTx", 100, &ProviderPowerNode::PowerDataCallBack, this);
 
