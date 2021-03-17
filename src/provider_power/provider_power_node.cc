@@ -70,7 +70,7 @@ namespace provider_power {
 // M E T H O D   S E C T I O N
 
     void ProviderPowerNode::Spin(){
-        ros::Rate r(5); // 5 hz
+        ros::Rate r(1); // 1 hz
 
         while(ros::ok())
         {
