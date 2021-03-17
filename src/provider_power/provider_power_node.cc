@@ -57,10 +57,6 @@ namespace provider_power {
         power_activation_ = nh_->advertiseService("/provider_power/manage_power_supply_bus",
                                                      &ProviderPowerNode::powerActivation, this);
 
-        //ProviderPowerNode::initialize();
-
-        //timerForWatt_ = nh_->createTimer(ros::Duration(1.0), &ProviderPowerNode::wattCallBack, true);
-
     }
 
 //------------------------------------------------------------------------------
@@ -96,8 +92,6 @@ namespace provider_power {
         data.Bytes[1] = publishData->data[1];
         data.Bytes[2] = publishData->data[2];
         data.Bytes[3] = publishData->data[3];
-
-
 
         msg.slave = publishData->slave;
         msg.slave -= sonia_common::SendRS485Msg::SLAVE_powersupply0;
