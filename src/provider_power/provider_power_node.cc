@@ -93,10 +93,6 @@ namespace provider_power {
         msg.cmd = publishData->cmd;
         msg.data = data.info;
 
-        ROS_INFO("Slave : %d", msg.slave);
-        ROS_INFO("Command : %d", msg.cmd);
-        ROS_INFO("Value : %f", msg.data);
-
         if (msg.data >= 0 && msg.data < 1){
 
             msg.data = 0;
