@@ -75,8 +75,12 @@ namespace provider_power {
 
         uint8_t swapSlave[4] = {sonia_common::SendRS485Msg::SLAVE_powersupply0, sonia_common::SendRS485Msg::SLAVE_powersupply1,
                                        sonia_common::SendRS485Msg::SLAVE_powersupply2, sonia_common::SendRS485Msg::SLAVE_powersupply3};
-        uint8_t swapCmd[3] = {sonia_common::SendRS485Msg::CMD_PS_ACT_12V, sonia_common::SendRS485Msg::CMD_PS_ACT_16V_1,
+        uint8_t swapCmdAct[3] = {sonia_common::SendRS485Msg::CMD_PS_ACT_12V, sonia_common::SendRS485Msg::CMD_PS_ACT_16V_1,
                                      sonia_common::SendRS485Msg::CMD_PS_ACT_16V_2};
+        uint8_t swapCmd[11] = {sonia_common::SendRS485Msg::CMD_PS_V16_1, sonia_common::SendRS485Msg::CMD_PS_V16_2,
+                                sonia_common::SendRS485Msg::CMD_PS_V12, sonia_common::SendRS485Msg::CMD_PS_C16_1, sonia_common::SendRS485Msg::CMD_PS_C16_2,
+                                sonia_common::SendRS485Msg::CMD_PS_C12, sonia_common::SendRS485Msg::CMD_PS_temperature, sonia_common::SendRS485Msg::CMD_PS_VBatt,
+                                sonia_common::SendRS485Msg::CMD_PS_ACT_12V, sonia_common::SendRS485Msg::CMD_PS_ACT_16V_1, sonia_common::SendRS485Msg::CMD_PS_ACT_16V_2};
 
         ros::NodeHandlePtr nh_;
         ros::Publisher power_publisher_;
