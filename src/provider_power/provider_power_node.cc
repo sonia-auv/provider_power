@@ -93,12 +93,6 @@ namespace provider_power {
         msg.cmd = publishData->cmd;
         msg.data = data.info;
 
-        if (msg.data >= 0 && msg.data < 1){
-
-            msg.data = 0;
-
-        }
-
         if (publishData->cmd >= sonia_common::SendRS485Msg::CMD_PS_CHECK_12V and publishData->cmd <= sonia_common::SendRS485Msg::CMD_PS_CHECK_16V_2){
 
             msg.data = publishData->data[0];
