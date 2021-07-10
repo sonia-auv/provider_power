@@ -163,7 +163,7 @@ namespace provider_power {
     }
 
     void ProviderPowerNode::pollPower(uint8_t slave) {
-        ros::Rate rate(7);
+        ros::Rate rate(4);
 
         pollCmd(slave, sonia_common::SendRS485Msg::CMD_PS_V16_1);
         rate.sleep();
