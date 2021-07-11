@@ -89,8 +89,9 @@ namespace provider_power {
         data.Bytes[3] = publishData->data[3];
 
         msg.slave = publishData->slave;
-        msg.slave -= sonia_common::SendRS485Msg::SLAVE_powersupply0;
+        //salve_received = msg.slave;
         msg.cmd = publishData->cmd;
+        //cmd_received = msg.cmd;
         msg.data = data.info;
 
         if (publishData->cmd >= sonia_common::SendRS485Msg::CMD_PS_CHECK_12V and publishData->cmd <= sonia_common::SendRS485Msg::CMD_PS_CHECK_16V_2){
@@ -100,6 +101,11 @@ namespace provider_power {
         }
 
         power_publisher_.publish(msg);
+
+        cv.notify_one();
+
+        //salve_received = 0;
+        //cmd_received = 0;
 
     }
 
@@ -157,38 +163,21 @@ namespace provider_power {
         {
             for(j = 0; j < 4 ; ++j)
             {
-                powerActivation(swapSlave[j], swapCmd[i], receiveData->data);
+                powerActivation(swapSlave[j], swapCmdAct[i], receiveData->data);
             }
         }
     }
 
     void ProviderPowerNode::pollPower(uint8_t slave) {
-        ros::Rate rate(4);
 
-        pollCmd(slave, sonia_common::SendRS485Msg::CMD_PS_V16_1);
-        rate.sleep();
-        pollCmd(slave, sonia_common::SendRS485Msg::CMD_PS_V16_2);
-        rate.sleep();
-        pollCmd(slave, sonia_common::SendRS485Msg::CMD_PS_V12);
-        rate.sleep();
-        pollCmd(slave, sonia_common::SendRS485Msg::CMD_PS_C16_1);
-        rate.sleep();
-        pollCmd(slave, sonia_common::SendRS485Msg::CMD_PS_C16_2);
-        rate.sleep();
-        pollCmd(slave, sonia_common::SendRS485Msg::CMD_PS_C12);
-        rate.sleep();
-        pollCmd(slave, sonia_common::SendRS485Msg::CMD_PS_temperature);
-        rate.sleep();
-        pollCmd(slave, sonia_common::SendRS485Msg::CMD_PS_VBatt);
-        rate.sleep();
-        pollCmd(slave, sonia_common::SendRS485Msg::CMD_PS_CHECK_12V);
-        rate.sleep();
-        pollCmd(slave, sonia_common::SendRS485Msg::CMD_PS_CHECK_16V_1);
-        rate.sleep();
-        pollCmd(slave, sonia_common::SendRS485Msg::CMD_PS_CHECK_16V_2);
-
-        rate.sleep();
-
+        for(int i = 0; i < 11; ++i)
+        {
+            //do {
+                std::unique_lock<std::mutex> lck(mtx);
+                pollCmd(slave, swapCmd[i]);
+                cv.wait(lck);
+            //} while(slave != salve_received || swapCmd[i] != cmd_received); // Verify that the cmd has been received before sending a new one
+        }
     }
 
     void ProviderPowerNode::pollCmd(uint8_t slave, uint8_t cmd) {

@@ -38,6 +38,8 @@
 #include <sonia_common/SendRS485Msg.h>
 #include <sonia_common/ManagePowerSupplyBus.h>
 #include <sonia_common/ActivateAllPS.h>
+#include <condition_variable>
+#include <mutex>
 
 namespace provider_power {
 
@@ -75,8 +77,12 @@ namespace provider_power {
 
         uint8_t swapSlave[4] = {sonia_common::SendRS485Msg::SLAVE_powersupply0, sonia_common::SendRS485Msg::SLAVE_powersupply1,
                                        sonia_common::SendRS485Msg::SLAVE_powersupply2, sonia_common::SendRS485Msg::SLAVE_powersupply3};
-        uint8_t swapCmd[3] = {sonia_common::SendRS485Msg::CMD_PS_ACT_12V, sonia_common::SendRS485Msg::CMD_PS_ACT_16V_1,
+        uint8_t swapCmdAct[3] = {sonia_common::SendRS485Msg::CMD_PS_ACT_12V, sonia_common::SendRS485Msg::CMD_PS_ACT_16V_1,
                                      sonia_common::SendRS485Msg::CMD_PS_ACT_16V_2};
+        uint8_t swapCmd[11] = {sonia_common::SendRS485Msg::CMD_PS_V16_1, sonia_common::SendRS485Msg::CMD_PS_V16_2,
+                                sonia_common::SendRS485Msg::CMD_PS_V12, sonia_common::SendRS485Msg::CMD_PS_C16_1, sonia_common::SendRS485Msg::CMD_PS_C16_2,
+                                sonia_common::SendRS485Msg::CMD_PS_C12, sonia_common::SendRS485Msg::CMD_PS_temperature, sonia_common::SendRS485Msg::CMD_PS_VBatt,
+                                sonia_common::SendRS485Msg::CMD_PS_ACT_12V, sonia_common::SendRS485Msg::CMD_PS_ACT_16V_1, sonia_common::SendRS485Msg::CMD_PS_ACT_16V_2};
 
         ros::NodeHandlePtr nh_;
         ros::Publisher power_publisher_;
@@ -94,7 +100,11 @@ namespace provider_power {
             float info;
         };
 
-        uint16_t nbTime[4];
+        uint8_t salve_received;
+        uint8_t cmd_received;
+
+        std::condition_variable cv;
+        std::mutex mtx;
     };
 }  // namespace provider_power
 
