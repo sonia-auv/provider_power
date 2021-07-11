@@ -67,7 +67,7 @@ namespace provider_power {
 // M E T H O D   S E C T I O N
 
     void ProviderPowerNode::Spin(){
-        ros::Rate r(1); // 1 hz
+        ros::Rate r(2); // 2 hz
 
         while(ros::ok())
         {
@@ -177,6 +177,7 @@ namespace provider_power {
                 pollCmd(slave, swapCmd[i]);
                 cv.wait(lck);
             //} while(slave != salve_received || swapCmd[i] != cmd_received); // Verify that the cmd has been received before sending a new one
+
         }
     }
 
