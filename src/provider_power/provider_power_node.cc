@@ -173,7 +173,7 @@ namespace provider_power {
         for(int i = 0; i < 11; ++i)
         {
             //do {
-                std::unique_lock<std::mutex> lck(mtx);
+                std::unique_lock<std::mutex> lck(mtx); // To test for performance issues
                 pollCmd(slave, swapCmd[i]);
                 cv.wait(lck);
             //} while(slave != salve_received || swapCmd[i] != cmd_received); // Verify that the cmd has been received before sending a new one
