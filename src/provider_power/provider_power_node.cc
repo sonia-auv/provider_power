@@ -73,8 +73,8 @@ namespace provider_power {
         {
             ros::spinOnce();
             ObtainPowerData();
+            r.sleep();
         }
-        r.sleep();
     }
 
     void ProviderPowerNode::PublishPowerMsg(const sonia_common::SendRS485Msg::ConstPtr &publishData) {
