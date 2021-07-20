@@ -80,7 +80,7 @@ namespace provider_power {
     void ProviderPowerNode::PublishPowerMsg(const sonia_common::SendRS485Msg::ConstPtr &publishData) {
 
         sonia_common::PowerMsg msg;
-        powerData data;
+        powerData value;
 
         msg.slave = publishData->slave;
         msg.cmd = publishData->cmd;
@@ -89,30 +89,38 @@ namespace provider_power {
         {
             for(uint8_t i = 0; i < nb_motor; ++i)
             {
-                msg.data[i] = publishData->data[i];
+                msg.data.data[i] = publishData->data[i];
             }
         }
         else
         {
             for(uint8_t i = 0; i < nb_sensor; ++i) // shifting of 4 for each data
             {
-                data.Bytes[0] = publishData->data[4*i];
-                data.Bytes[1] = publishData->data[4*i+1];
-                data.Bytes[2] = publishData->data[4*i+2];
-                data.Bytes[3] = publishData->data[4*i+3];
-                //ADD MESSAGE
+                value.Bytes[0] = publishData->data[4*i];
+                value.Bytes[1] = publishData->data[4*i+1];
+                value.Bytes[2] = publishData->data[4*i+2];
+                value.Bytes[3] = publishData->data[4*i+3];
+
+                msg.data.data[i] = value.info;
+
+                if(msg.cmd == 1)
+                {
+                    msg.data.layout.dim[i].label = currentArray[i];
+                }
+                else
+                {
+                    msg.data.layout.dim[i].label = voltageArray[i];
+                }
             }
         }
-
-        //CHANGE POWERMSG FOR FLOAT ARRAY      
+  
         //salve_received = msg.slave;
         
         //cmd_received = msg.cmd;
-        msg.data = data.info;
 
         power_publisher_.publish(msg);
 
-        cv.notify_one();
+        cv.notify_all();
 
         //salve_received = 0;
         //cmd_received = 0;
@@ -122,9 +130,11 @@ namespace provider_power {
 
     void ProviderPowerNode::ObtainPowerData() {
 
-        pollCmd(0, swapCmd[0]);
+        /*pollCmd(0, swapCmd[0]);
         pollCmd(0, swapCmd[1]);
-        pollCmd(0, swapCmd[2]);
+        pollCmd(0, swapCmd[2]);*/
+
+        pollPower(0);
 
     }
 
@@ -175,7 +185,7 @@ namespace provider_power {
         
         std::unique_lock<std::mutex> lck(mtx); // To test for performance issues
 
-        for(int i = 0; i < 11; ++i)
+        for(int i = 0; i < 3; ++i)
         {
             //do {
                 pollCmd(slave, swapCmd[i]);               

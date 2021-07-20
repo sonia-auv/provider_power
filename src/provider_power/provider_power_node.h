@@ -76,6 +76,8 @@ namespace provider_power {
         void pollCmd(uint8_t slave, uint8_t cmd);
 
         uint8_t swapCmd[3] = {0,1,3}; // Voltage, current, motor read
+        std::string voltageArray[10] = {"V_M1", "V_M2", "V_M3", "V_M4", "V_M5", "V_M6", "V_M7", "V_M8", "V_BAT1", "V_BAT2"};
+        std::string currentArray[10] = {"C_M1", "C_M2", "C_M3", "C_M4", "C_M5", "C_M6", "C_M7", "C_M8", "C_BAT1", "C_BAT2"};
 
         ros::NodeHandlePtr nh_;
         ros::Publisher power_publisher_;
@@ -85,12 +87,12 @@ namespace provider_power {
         ros::Subscriber activate_all_ps_;
         ros::ServiceServer power_activation_;
 
-        const uint8_t next = 3;
-        const uint16_t convert = 1000;
+        //const uint8_t next = 3;
+        //const uint16_t convert = 1000;
 
         union powerData {
             uint8_t Bytes[4];
-            float info;
+            float_t info;
         };
 
         uint8_t nb_sensor = 10;
