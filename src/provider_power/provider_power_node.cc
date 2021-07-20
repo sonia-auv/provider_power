@@ -120,7 +120,8 @@ namespace provider_power {
 
         power_publisher_.publish(msg);
 
-        cv.notify_all();
+        std::unique_lock<std::mutex> lck(mtx);  // or try lock guard    
+        cv.notify_one();
 
         //salve_received = 0;
         //cmd_received = 0;
@@ -182,13 +183,12 @@ namespace provider_power {
     }
 
     void ProviderPowerNode::pollPower(uint8_t slave) {
-        
-        std::unique_lock<std::mutex> lck(mtx); // To test for performance issues
 
         for(int i = 0; i < 3; ++i)
         {
             //do {
-                pollCmd(slave, swapCmd[i]);               
+                pollCmd(slave, swapCmd[i]);    
+                std::unique_lock<std::mutex> lck(mtx); // To test for performance issues          
                 cv.wait(lck);
             //} while(slave != salve_received || swapCmd[i] != cmd_received); // Verify that the cmd has been received before sending a new one
 
