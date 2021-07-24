@@ -114,16 +114,16 @@ namespace provider_power {
             }
         }
   
-        salve_received = msg.slave;
-        cmd_received = msg.cmd;
+        //salve_received = msg.slave;
+        //cmd_received = msg.cmd;
 
         power_publisher_.publish(msg);
 
-        //std::unique_lock<std::mutex> lck(mtx);  // or try lock guard    
-        //cv.notify_one();
+        std::unique_lock<std::mutex> mlck(mtx);  // or try lock guard    
+        cv.notify_one();
 
-        salve_received = 0;
-        cmd_received = 0;
+        //salve_received = 0;
+        //cmd_received = 0;
 
     }
 
@@ -185,12 +185,12 @@ namespace provider_power {
 
         for(int i = 0; i < 3; ++i)
         {
-            do {
+            //do {
                 pollCmd(slave, swapCmd[i]);    
-                //std::unique_lock<std::mutex> lck(mtx); // To test for performance issues          
-                //cv.wait(lck);
-                usleep(10000);
-            } while(slave != salve_received || swapCmd[i] != cmd_received); // Verify that the cmd has been received before sending a new one
+                std::unique_lock<std::mutex> mlck(mtx); // To test for performance issues          
+                cv.wait(mlck);
+                //usleep(10000);
+            //} while(slave != salve_received || swapCmd[i] != cmd_received); // Verify that the cmd has been received before sending a new one
 
         }
     }
