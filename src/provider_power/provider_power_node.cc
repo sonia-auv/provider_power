@@ -67,7 +67,7 @@ namespace provider_power {
 // M E T H O D   S E C T I O N
 
     void ProviderPowerNode::Spin(){
-        ros::Rate r(5); // 5 hz
+        ros::Rate r(1); // 5 hz
 
         while(ros::ok())
         {
@@ -114,17 +114,16 @@ namespace provider_power {
             }
         }
   
-        //salve_received = msg.slave;
-        
-        //cmd_received = msg.cmd;
+        salve_received = msg.slave;
+        cmd_received = msg.cmd;
 
         power_publisher_.publish(msg);
 
-        std::unique_lock<std::mutex> lck(mtx);  // or try lock guard    
-        cv.notify_one();
+        //std::unique_lock<std::mutex> lck(mtx);  // or try lock guard    
+        //cv.notify_one();
 
-        //salve_received = 0;
-        //cmd_received = 0;
+        salve_received = 0;
+        cmd_received = 0;
 
     }
 
@@ -186,11 +185,12 @@ namespace provider_power {
 
         for(int i = 0; i < 3; ++i)
         {
-            //do {
+            do {
                 pollCmd(slave, swapCmd[i]);    
-                std::unique_lock<std::mutex> lck(mtx); // To test for performance issues          
-                cv.wait(lck);
-            //} while(slave != salve_received || swapCmd[i] != cmd_received); // Verify that the cmd has been received before sending a new one
+                //std::unique_lock<std::mutex> lck(mtx); // To test for performance issues          
+                //cv.wait(lck);
+                usleep(100);
+            } while(slave != salve_received || swapCmd[i] != cmd_received); // Verify that the cmd has been received before sending a new one
 
         }
     }
