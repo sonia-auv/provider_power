@@ -67,7 +67,7 @@ namespace provider_power {
 // M E T H O D   S E C T I O N
 
     void ProviderPowerNode::Spin(){
-        ros::Rate r(1); // 5 hz
+        ros::Rate r(5); // 5 hz
 
         while(ros::ok())
         {
@@ -178,7 +178,7 @@ namespace provider_power {
     
     void ProviderPowerNode::ActivateAllPsCallBack(const sonia_common::ActivateAllPS::ConstPtr &receiveData)
     {
-        powerActivation(0, 2, receiveData->data);
+        powerActivation(0, 4, receiveData->data);
     }
 
     void ProviderPowerNode::pollPower(uint8_t slave) {
