@@ -51,8 +51,8 @@ namespace provider_power {
         activate_all_ps_ =
                 nh_->subscribe("/provider_power/activate_all_ps", 100, &ProviderPowerNode::ActivateAllPsCallBack, this);
 
-        /*power_activation_ = nh_->advertiseService("/provider_power/manage_power_supply_bus",
-                                                     &ProviderPowerNode::powerActivation, this);*/
+        //power_activation_ = nh_->advertiseService("/provider_power/manage_power_supply_bus",
+        //                                             &ProviderPowerNode::powerActivation, this);
     }
 
 //------------------------------------------------------------------------------
@@ -67,12 +67,12 @@ namespace provider_power {
 // M E T H O D   S E C T I O N
 
     void ProviderPowerNode::Spin(){
-        ros::Rate r(5); // 5 hz
+        ros::Rate r(1); // 5 hz
 
         while(ros::ok())
         {
             ros::spinOnce();
-            //ObtainPowerData();
+            ObtainPowerData();
             r.sleep();
         }
     }
@@ -94,7 +94,7 @@ namespace provider_power {
         }
         else
         {
-            for(uint8_t i = 0; i < nb_sensor; ++i) // shifting of 4 for each data
+            for(uint8_t i = 0; i < 5; ++i) // shifting of 4 for each data
             {
                 value.Bytes[0] = publishData->data[4*i];
                 value.Bytes[1] = publishData->data[4*i+1];
@@ -119,8 +119,8 @@ namespace provider_power {
 
         power_publisher_.publish(msg);
 
-        std::unique_lock<std::mutex> mlck(mtx);  // or try lock guard    
-        cv.notify_one();
+        //std::unique_lock<std::mutex> mlck(mtx);  // or try lock guard    
+        //cv.notify_one();
 
         //salve_received = 0;
         //cmd_received = 0;
@@ -187,9 +187,9 @@ namespace provider_power {
         {
             //do {
                 pollCmd(slave, swapCmd[i]);    
-                std::unique_lock<std::mutex> mlck(mtx); // To test for performance issues          
-                cv.wait(mlck);
-                //usleep(10000);
+                //std::unique_lock<std::mutex> mlck(mtx); // To test for performance issues          
+                //cv.wait(mlck);
+                ros::Duration(0.2).sleep();
             //} while(slave != salve_received || swapCmd[i] != cmd_received); // Verify that the cmd has been received before sending a new one
 
         }
