@@ -189,7 +189,7 @@ namespace provider_power {
                 pollCmd(slave, swapCmd[i]);    
                 //std::unique_lock<std::mutex> lck(mtx); // To test for performance issues          
                 //cv.wait(lck);
-                usleep(100);
+                usleep(10000);
             } while(slave != salve_received || swapCmd[i] != cmd_received); // Verify that the cmd has been received before sending a new one
 
         }
