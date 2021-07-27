@@ -36,6 +36,7 @@
 #include <sonia_common/PowerMsg.h>
 //#include <sonia_common/PowerInfo.h>
 #include <sonia_common/SendRS485Msg.h>
+#include <std_msgs/MultiArrayDimension.h>
 //#include <sonia_common/ManagePowerSupplyBus.h>
 #include <sonia_common/ActivateAllPS.h>
 #include <condition_variable>
@@ -76,8 +77,8 @@ namespace provider_power {
         void pollCmd(uint8_t slave, uint8_t cmd);
 
         uint8_t swapCmd[3] = {2,3,5}; // Voltage, current, motor read
-        std::string voltageArray[10] = {"V_M1", "V_M2", "V_M3", "V_M4", "V_M5", "V_M6", "V_M7", "V_M8", "V_BAT1", "V_BAT2"};
-        std::string currentArray[10] = {"C_M1", "C_M2", "C_M3", "C_M4", "C_M5", "C_M6", "C_M7", "C_M8", "C_BAT1", "C_BAT2"};
+        std::string voltageString = "Voltage_M1_M2_M3_M4_M5_M6_M7_M8_BAT1_BAT2";
+        std::string currentString = "Current_M1_M2_M3_M4_M5_M6_M7_M8_BAT1_BAT2";
 
         ros::NodeHandlePtr nh_;
         ros::Publisher power_publisher_;
@@ -86,6 +87,8 @@ namespace provider_power {
         ros::Subscriber power_subscriberTx_;
         ros::Subscriber activate_all_ps_;
         ros::ServiceServer power_activation_;
+
+        sonia_common::PowerMsg msg;
 
         //const uint8_t next = 3;
         //const uint16_t convert = 1000;

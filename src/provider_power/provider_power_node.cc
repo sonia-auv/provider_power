@@ -72,45 +72,48 @@ namespace provider_power {
         while(ros::ok())
         {
             ros::spinOnce();
-            //ObtainPowerData();
+            ObtainPowerData();
             r.sleep();
         }
     }
 
     void ProviderPowerNode::PublishPowerMsg(const sonia_common::SendRS485Msg::ConstPtr &publishData) {
 
-        sonia_common::PowerMsg msg;
         powerData value;
+        uint8_t size_array = publishData->data.size();
+
+        msg.array.data.clear();
 
         msg.slave = publishData->slave;
         msg.cmd = publishData->cmd;
 
         if(msg.cmd >= 2)
         {
-            for(uint8_t i = 0; i < nb_motor; ++i)
+            for(uint8_t i = 0; i < size_array; ++i)
             {
-                msg.data.data[i] = publishData->data[i];
+                msg.array.data.push_back(publishData->data[i]);
             }
         }
         else
         {
-            for(uint8_t i = 0; i < 5; ++i) // shifting of 4 for each data
+            for(uint8_t i = 0; i < size_array/4; ++i) // shifting of 4 for each data
             {
                 value.Bytes[0] = publishData->data[4*i];
                 value.Bytes[1] = publishData->data[4*i+1];
                 value.Bytes[2] = publishData->data[4*i+2];
                 value.Bytes[3] = publishData->data[4*i+3];
 
-                msg.data.data[i] = value.info;
+                msg.array.data.push_back(value.info);
+            }
+            msg.array.layout.dim.push_back(std_msgs::MultiArrayDimension());
 
-                if(msg.cmd == 1)
-                {
-                    msg.data.layout.dim[i].label = currentArray[i];
-                }
-                else
-                {
-                    msg.data.layout.dim[i].label = voltageArray[i];
-                }
+            if(msg.cmd == 1)
+            {
+                msg.array.layout.dim[0].label = currentString;
+            }
+            else
+            {
+                msg.array.layout.dim[0].label = voltageString;
             }
         }
   
@@ -189,7 +192,7 @@ namespace provider_power {
                 pollCmd(slave, swapCmd[i]);    
                 //std::unique_lock<std::mutex> mlck(mtx); // To test for performance issues          
                 //cv.wait(mlck);
-                ros::Duration(0.2).sleep();
+                ros::Duration(0.1).sleep();
             //} while(slave != salve_received || swapCmd[i] != cmd_received); // Verify that the cmd has been received before sending a new one
 
         }
