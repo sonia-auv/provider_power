@@ -1,4 +1,4 @@
-ARG BASE_IMAGE="ghcr.io/sonia-auv/sonia_common/sonia_common@sha256:ba94766b8a6936ef6a589a5a4a22f20a6497cf44e77b4176a3627d8202bc21c5"
+ARG BASE_IMAGE="ghcr.io/sonia-auv/sonia_common/sonia_common:x86-perception-feature-update-rs485-definitions"
 
 FROM ${BASE_IMAGE}
 

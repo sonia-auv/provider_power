@@ -76,7 +76,8 @@ namespace provider_power {
 
         void pollCmd(uint8_t slave, uint8_t cmd);
 
-        uint8_t swapCmd[3] = {2,3,5}; // Voltage, current, motor read
+        uint8_t swapCmd[3] = {sonia_common::SendRS485Msg::CMD_VOLTAGE,sonia_common::SendRS485Msg::CMD_CURRENT,
+                                sonia_common::SendRS485Msg::CMD_READ_MOTOR}; // Voltage, current, motor read
         std::string voltageString = "Voltage_M1_M2_M3_M4_M5_M6_M7_M8_BAT1_BAT2";
         std::string currentString = "Current_M1_M2_M3_M4_M5_M6_M7_M8_BAT1_BAT2";
 
