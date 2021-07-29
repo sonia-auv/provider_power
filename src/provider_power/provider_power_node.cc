@@ -72,6 +72,7 @@ namespace provider_power {
         while(ros::ok())
         {
             ros::spinOnce();
+            ROS_INFO("STILL RUNNING");
             //ObtainPowerData();
             r.sleep();
         }
