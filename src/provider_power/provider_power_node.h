@@ -32,15 +32,10 @@
 #define PROVIDER_POWER_PROVIDER_POWER_NODE_H
 
 #include <ros/ros.h>
-//#include <geometry_msgs/Twist.h>
 #include <sonia_common/PowerMsg.h>
-//#include <sonia_common/PowerInfo.h>
 #include <sonia_common/SendRS485Msg.h>
 #include <std_msgs/MultiArrayDimension.h>
-//#include <sonia_common/ManagePowerSupplyBus.h>
 #include <sonia_common/ActivateAllPS.h>
-#include <condition_variable>
-#include <mutex>
 
 namespace provider_power {
 
@@ -58,21 +53,12 @@ namespace provider_power {
     private:
         //============================================================================
         // P R I V A T E   M E T H O D S
-        
-        void PublishPowerMsg(const sonia_common::SendRS485Msg::ConstPtr &publishData);
 
         void ObtainPowerData();
 
         void PowerDataCallBack(const sonia_common::SendRS485Msg::ConstPtr &receiveData);
 
         void ActivateAllPsCallBack(const sonia_common::ActivateAllPS::ConstPtr &receiveData);
-
-        /*bool powerActivation(sonia_common::ManagePowerSupplyBus::Request &req,
-                         sonia_common::ManagePowerSupplyBus::Response &res);*/
-
-        void powerActivation(uint8_t slave, uint8_t cmd, uint8_t state);
-
-        void pollPower(uint8_t slave);
 
         void pollCmd(uint8_t slave, uint8_t cmd);
 
@@ -84,28 +70,17 @@ namespace provider_power {
         ros::NodeHandlePtr nh_;
         ros::Publisher power_publisher_;
         ros::Publisher power_publisherRx_;
-        //ros::Publisher power_publisherInfo_;
+
         ros::Subscriber power_subscriberTx_;
         ros::Subscriber activate_all_ps_;
         ros::ServiceServer power_activation_;
-
-        sonia_common::PowerMsg msg;
-
-        //const uint8_t next = 3;
-        //const uint16_t convert = 1000;
 
         union powerData {
             uint8_t Bytes[4];
             float_t info;
         };
 
-        uint8_t nb_sensor = 10;
         uint8_t nb_motor = 8;
-        uint8_t salve_received;
-        uint8_t cmd_received;
-
-        std::condition_variable cv;
-        std::mutex mtx;
     };
 }  // namespace provider_power
 
