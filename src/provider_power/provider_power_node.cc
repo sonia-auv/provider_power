@@ -86,10 +86,10 @@ namespace provider_power {
 
         msg.slave = publishData->slave;
         msg.cmd = publishData->cmd;
-        ROS_WARN("CMD AND SLAVE SET");
+
         if(msg.cmd == sonia_common::SendRS485Msg::CMD_READ_MOTOR || msg.cmd == sonia_common::SendRS485Msg::CMD_ACT_MOTOR)
         {
-            ROS_WARN("THRUSTER MESSAGE");
+
             for(uint8_t i = 0; i < size_array; ++i)
             {
                 msg.array.data.push_back(publishData->data[i]);
@@ -120,7 +120,7 @@ namespace provider_power {
   
         //salve_received = msg.slave;
         //cmd_received = msg.cmd;
-        ROS_WARN("MSG PUBLISHED");
+
         power_publisher_.publish(msg);
 
         //std::unique_lock<std::mutex> mlck(mtx);  // or try lock guard    
@@ -141,7 +141,6 @@ namespace provider_power {
     void ProviderPowerNode::PowerDataCallBack(const sonia_common::SendRS485Msg::ConstPtr &receiveData) {
 
         if (receiveData->slave == sonia_common::SendRS485Msg::SLAVE_BACKPLANE) {
-            ROS_WARN("INTERFACE TX RECEPTION");
             ProviderPowerNode::PublishPowerMsg(receiveData);
         }
     }
