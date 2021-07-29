@@ -178,7 +178,7 @@ namespace provider_power {
     
     void ProviderPowerNode::ActivateAllPsCallBack(const sonia_common::ActivateAllPS::ConstPtr &receiveData)
     {
-        ROS_INFOR("MESSAGE RECEIVED");
+        ROS_INFO("MESSAGE RECEIVED");
         powerActivation(sonia_common::SendRS485Msg::SLAVE_BACKPLANE, sonia_common::SendRS485Msg::CMD_ACT_MOTOR, receiveData->data);
     }
 
