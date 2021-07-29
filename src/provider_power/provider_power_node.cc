@@ -166,17 +166,19 @@ namespace provider_power {
 
         enablePower.slave = slave;
         enablePower.cmd = cmd;
-        
+        ROS_INFO("CMD SLAVE DONE");
         for(uint8_t i =0; i < nb_motor; ++i)
         {
             enablePower.data.push_back(state);
         }
-
+        ROS_INFO("STATE DONE");
         power_publisherRx_.publish(enablePower);
+        ROS_INFO("MESSAGE SENT");
     }
     
     void ProviderPowerNode::ActivateAllPsCallBack(const sonia_common::ActivateAllPS::ConstPtr &receiveData)
     {
+        ROS_INFOR("MESSAGE RECEIVED");
         powerActivation(sonia_common::SendRS485Msg::SLAVE_BACKPLANE, sonia_common::SendRS485Msg::CMD_ACT_MOTOR, receiveData->data);
     }
 
@@ -188,7 +190,7 @@ namespace provider_power {
                 pollCmd(slave, swapCmd[i]);    
                 //std::unique_lock<std::mutex> mlck(mtx); // To test for performance issues          
                 //cv.wait(mlck);
-                ros::Duration(0.1).sleep();
+                //ros::Duration(0.1).sleep();
             //} while(slave != salve_received || swapCmd[i] != cmd_received); // Verify that the cmd has been received before sending a new one
 
         }
