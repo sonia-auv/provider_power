@@ -141,7 +141,7 @@ namespace provider_power {
     void ProviderPowerNode::PowerDataCallBack(const sonia_common::SendRS485Msg::ConstPtr &receiveData) {
 
         if (receiveData->slave == sonia_common::SendRS485Msg::SLAVE_BACKPLANE) {
-            ROS_WARN("INTERFACE TX RECEPTION")
+            ROS_WARN("INTERFACE TX RECEPTION");
             ProviderPowerNode::PublishPowerMsg(receiveData);
         }
     }
