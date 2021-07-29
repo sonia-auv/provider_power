@@ -72,7 +72,7 @@ namespace provider_power {
         while(ros::ok())
         {
             ros::spinOnce();
-            ROS_INFO("STILL RUNNING");
+            ROS_WARN("STILL RUNNING");
             //ObtainPowerData();
             r.sleep();
         }
@@ -167,19 +167,19 @@ namespace provider_power {
 
         enablePower.slave = slave;
         enablePower.cmd = cmd;
-        ROS_INFO("CMD SLAVE DONE");
+        ROS_WARN("CMD SLAVE DONE");
         for(uint8_t i =0; i < nb_motor; ++i)
         {
             enablePower.data.push_back(state);
         }
-        ROS_INFO("STATE DONE");
+        ROS_WARN("STATE DONE");
         power_publisherRx_.publish(enablePower);
-        ROS_INFO("MESSAGE SENT");
+        ROS_WARN("MESSAGE SENT");
     }
     
     void ProviderPowerNode::ActivateAllPsCallBack(const sonia_common::ActivateAllPS::ConstPtr &receiveData)
     {
-        ROS_INFO("MESSAGE RECEIVED");
+        ROS_WARN("MESSAGE RECEIVED");
         powerActivation(sonia_common::SendRS485Msg::SLAVE_BACKPLANE, sonia_common::SendRS485Msg::CMD_ACT_MOTOR, receiveData->data);
     }
 
