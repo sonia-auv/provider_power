@@ -75,7 +75,7 @@ namespace provider_power {
     {
         for(int i = 0; i < 3; ++i)
         {
-            pollCmd(sonia_common::SendRS485Msg::SLAVE_BACKPLANE, swapCmd[i]);    
+            pollCmd(sonia_common::SendRS485Msg::SLAVE_PSU0, swapCmd[i]);    
         }
     }
 
@@ -83,7 +83,7 @@ namespace provider_power {
     {
         sonia_common::PowerMsg msg;
 
-        if (receiveData->slave == sonia_common::SendRS485Msg::SLAVE_BACKPLANE) {
+        if (receiveData->slave == sonia_common::SendRS485Msg::SLAVE_PSU0) {
             powerData value;
             uint8_t size_array = receiveData->data.size();
 
@@ -131,7 +131,7 @@ namespace provider_power {
     {
         sonia_common::SendRS485Msg enablePower;
 
-        enablePower.slave = sonia_common::SendRS485Msg::SLAVE_BACKPLANE;
+        enablePower.slave = sonia_common::SendRS485Msg::SLAVE_PSU0;
         enablePower.cmd = sonia_common::SendRS485Msg::CMD_ACT_MOTOR;
 
         for(uint8_t i =0; i < nb_motor; ++i)
