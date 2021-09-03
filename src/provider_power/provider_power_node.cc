@@ -37,30 +37,16 @@ namespace provider_power {
 //------------------------------------------------------------------------------
 //
     ProviderPowerNode::ProviderPowerNode(ros::NodeHandlePtr &nh)
-            : nh_(nh) {
+            : nh_(nh) 
+    {
 
-        power_publisher_ =
-                nh_->advertise<sonia_common::PowerMsg>("/provider_power/power", 10);
+        power_publisher_ = nh_->advertise<sonia_common::PowerMsg>("/provider_power/power", 100);
 
-        power_publisherRx_ =
-                nh_->advertise<sonia_common::SendRS485Msg>("/interface_rs485/dataRx", 10);
+        power_publisherRx_ = nh_->advertise<sonia_common::SendRS485Msg>("/interface_rs485/dataRx", 100);
 
-        power_publisherInfo_ =
-                nh_->advertise<sonia_common::PowerInfo>("/provider_power/powerInfo", 10);
+        power_subscriberTx_ = nh_->subscribe("/interface_rs485/dataTx", 100, &ProviderPowerNode::PowerDataCallBack, this);
 
-        power_subscriberTx_ =
-                nh_->subscribe("/interface_rs485/dataTx", 100, &ProviderPowerNode::PowerDataCallBack, this);
-
-        activate_all_ps_ =
-                nh_->subscribe("/provider_power/activate_all_ps", 100, &ProviderPowerNode::ActivateAllPsCallBack, this);
-
-        power_activation_ = nh_->advertiseService("/provider_power/manage_power_supply_bus",
-                                                     &ProviderPowerNode::powerActivation, this);
-
-        ProviderPowerNode::initialize();
-
-        //timerForWatt_ = nh_->createTimer(ros::Duration(1.0), &ProviderPowerNode::wattCallBack, true);
-
+        activate_all_ps_ = nh_->subscribe("/provider_power/activate_all_ps", 100, &ProviderPowerNode::ActivateAllPsCallBack, this);
     }
 
 //------------------------------------------------------------------------------
@@ -74,127 +60,90 @@ namespace provider_power {
 //==============================================================================
 // M E T H O D   S E C T I O N
 
-    void ProviderPowerNode::PublishPowerMsg(const sonia_common::SendRS485Msg::ConstPtr &publishData) {
+    void ProviderPowerNode::Spin(){
+        ros::Rate r(1); // 5 hz
 
+        while(ros::ok())
+        {
+            ros::spinOnce();
+            //ObtainPowerData();
+            r.sleep();
+        }
+    }
+
+    void ProviderPowerNode::ObtainPowerData() 
+    {
+        for(int i = 0; i < 3; ++i)
+        {
+            pollCmd(sonia_common::SendRS485Msg::SLAVE_PSU0, swapCmd[i]);    
+        }
+    }
+
+    void ProviderPowerNode::PowerDataCallBack(const sonia_common::SendRS485Msg::ConstPtr &receiveData) 
+    {
         sonia_common::PowerMsg msg;
 
-        powerData data;
+        if (receiveData->slave == sonia_common::SendRS485Msg::SLAVE_PSU0) {
+            powerData value;
+            uint8_t size_array = receiveData->data.size();
 
-        data.Bytes[0] = publishData->data[0];
-        data.Bytes[1] = publishData->data[1];
-        data.Bytes[2] = publishData->data[2];
-        data.Bytes[3] = publishData->data[3];
+            msg.array.data.clear();
 
+            msg.slave = receiveData->slave;
+            msg.cmd = receiveData->cmd;
 
+            if(msg.cmd == sonia_common::SendRS485Msg::CMD_READ_MOTOR || msg.cmd == sonia_common::SendRS485Msg::CMD_ACT_MOTOR)
+            {
 
-        msg.slave = publishData->slave;
-        msg.slave -= sonia_common::SendRS485Msg::SLAVE_powersupply0;
-        msg.cmd = publishData->cmd;
-        msg.data = data.info;
+                for(uint8_t i = 0; i < size_array; ++i)
+                {
+                    msg.array.data.push_back(receiveData->data[i]);
+                }
+            }
+            else
+            {
+                for(uint8_t i = 0; i < size_array/4; ++i) // shifting of 4 for each data
+                {
+                    value.Bytes[0] = receiveData->data[4*i];
+                    value.Bytes[1] = receiveData->data[4*i+1];
+                    value.Bytes[2] = receiveData->data[4*i+2];
+                    value.Bytes[3] = receiveData->data[4*i+3];
 
-        if (msg.data >= 0 && msg.data < 1){
+                    msg.array.data.push_back(value.info);
+                }
+                msg.array.layout.dim.push_back(std_msgs::MultiArrayDimension());
 
-            msg.data = 0;
+                if(msg.cmd == sonia_common::SendRS485Msg::CMD_CURRENT)
+                {
+                    msg.array.layout.dim[0].label = currentString;
+                }
+                else
+                {
+                    msg.array.layout.dim[0].label = voltageString;
+                }
+            }
 
+            power_publisher_.publish(msg);
         }
-
-        if (publishData->cmd >= sonia_common::SendRS485Msg::CMD_PS_CHECK_12V and publishData->cmd <= sonia_common::SendRS485Msg::CMD_PS_CHECK_16V_2){
-
-            msg.data = publishData->data[0];
-
-        }
-
-        power_publisher_.publish(msg);
-
     }
-
-
-    void ProviderPowerNode::PublishPowerData() {
-
-        pollPower(sonia_common::SendRS485Msg::SLAVE_powersupply0);
-        pollPower(sonia_common::SendRS485Msg::SLAVE_powersupply1);
-        pollPower(sonia_common::SendRS485Msg::SLAVE_powersupply2);
-        pollPower(sonia_common::SendRS485Msg::SLAVE_powersupply3);
-
-
-    }
-
-    void ProviderPowerNode::PowerDataCallBack(const sonia_common::SendRS485Msg::ConstPtr &receiveData) {
-
-        if (receiveData->slave == receiveData->SLAVE_powersupply0 ||
-            receiveData->slave == receiveData->SLAVE_powersupply1 ||
-            receiveData->slave == receiveData->SLAVE_powersupply2 ||
-            receiveData->slave == receiveData->SLAVE_powersupply3) {
-
-            ProviderPowerNode::PublishPowerMsg(receiveData);
-
-        }
-
-    }
-
-    bool ProviderPowerNode::powerActivation(sonia_common::ManagePowerSupplyBus::Request &req,
-                                        sonia_common::ManagePowerSupplyBus::Response &res) {
-
+    
+    void ProviderPowerNode::ActivateAllPsCallBack(const sonia_common::ActivateAllPS::ConstPtr &receiveData)
+    {
         sonia_common::SendRS485Msg enablePower;
 
-        enablePower.slave = swapSlave[req.slave];
-        enablePower.cmd = swapCmd[req.bus];
-        enablePower.data.push_back(req.state);
+        enablePower.slave = sonia_common::SendRS485Msg::SLAVE_PSU0;
+        enablePower.cmd = sonia_common::SendRS485Msg::CMD_ACT_MOTOR;
 
-        power_publisherRx_.publish(enablePower);
-
-        return true;
-
-    }
-
-    void  ProviderPowerNode::powerCheckActivation() {
-        ros::Rate rate(10);
-        uint8_t i = sonia_common::SendRS485Msg::SLAVE_powersupply0;
-
-        while (i <= sonia_common::SendRS485Msg::SLAVE_powersupply3){
-
-            pollCmd(i, sonia_common::SendRS485Msg::CMD_PS_CHECK_12V);
-            rate.sleep();
-            pollCmd(i, sonia_common::SendRS485Msg::CMD_PS_CHECK_16V_1);
-            rate.sleep();
-            pollCmd(i, sonia_common::SendRS485Msg::CMD_PS_CHECK_16V_2);
-            rate.sleep();
-
-            i++;
-
+        for(uint8_t i =0; i < nb_motor; ++i)
+        {
+            enablePower.data.push_back(receiveData->data);
         }
 
-    }
-
-    void ProviderPowerNode::ActivateAllPsCallBack(const sonia_common::ActivateAllPS::ConstPtr &receiveData){
-
-        sonia_common::SendRS485Msg enablePower;
-
-        enablePower.slave = swapSlave[receiveData->slave];
-        enablePower.cmd = swapCmd[receiveData->bus];
-        enablePower.data.push_back(receiveData->data);
-
         power_publisherRx_.publish(enablePower);
-
     }
 
-    void ProviderPowerNode::pollPower(uint8_t slave) {
-        ros::Rate rate(4);
-
-        pollCmd(slave, sonia_common::SendRS485Msg::CMD_PS_V16_1);
-        pollCmd(slave, sonia_common::SendRS485Msg::CMD_PS_V16_2);
-        pollCmd(slave, sonia_common::SendRS485Msg::CMD_PS_C16_1);
-        pollCmd(slave, sonia_common::SendRS485Msg::CMD_PS_C16_2);
-        pollCmd(slave, sonia_common::SendRS485Msg::CMD_PS_C12);
-        pollCmd(slave, sonia_common::SendRS485Msg::CMD_PS_temperature);
-        pollCmd(slave, sonia_common::SendRS485Msg::CMD_PS_VBatt);
-        powerCheckActivation();
-        rate.sleep();
-
-    }
-
-    void ProviderPowerNode::pollCmd(uint8_t slave, uint8_t cmd) {
-
+    void ProviderPowerNode::pollCmd(uint8_t slave, uint8_t cmd) 
+    {
         sonia_common::SendRS485Msg messageData;
 
         messageData.slave = slave;
@@ -202,67 +151,5 @@ namespace provider_power {
         messageData.data.push_back(0x00);
 
         power_publisherRx_.publish(messageData);
-
     }
-
-    void ProviderPowerNode::wattCalculation(const uint8_t slave, const uint8_t cmd) {
-
-        sonia_common::PowerInfo msg;
-
-        msg.slave = slave;
-        msg.bus = cmd;
-
-        float voltage = 0;
-        float amperage = 0;
-
-        voltage = powerInformation[slave][cmd];
-        amperage = powerInformation[slave][cmd + next];
-
-        if (voltage > 0 && amperage > 0){
-            nbTime[slave]++;
-
-            watt5min[slave][cmd] = voltage * amperage;
-            msg.data5min = watt5min[slave][cmd];
-            watttotal[slave][cmd] += watt5min[slave][cmd];
-
-        }
-
-        if (nbTime[slave] == 12){
-            nbTime[slave] = 0;
-
-            watt1h[slave][cmd] = watttotal[slave][cmd];
-            msg.data1h = watt1h[slave][cmd];
-
-        }
-
-        power_publisherInfo_.publish(msg);
-
-
-    }
-
-    void ProviderPowerNode::initialize() {
-        int i,j;
-
-        for (i=0; i < 4; i++){
-
-            nbTime[i] = 0;
-
-            for(j=0; j < 3; j++){
-
-                watt5min[i][j] = 0;
-                watttotal[i][j] = 0;
-                watt1h[i][j] = 0;
-            }
-        }
-
-        for (i=0; i < 4; i++){
-
-            for(j=0; j < 6; j++){
-
-                powerInformation[i][j] = 0.0;
-            }
-        }
-
-    }
-
 }
