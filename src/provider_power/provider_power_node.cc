@@ -66,7 +66,7 @@ namespace provider_power {
         while(ros::ok())
         {
             ros::spinOnce();
-            //ObtainPowerData();
+            ObtainPowerData();
             r.sleep();
         }
     }
