@@ -66,7 +66,7 @@ namespace provider_power {
         while(ros::ok())
         {
             ros::spinOnce();
-            //ObtainPowerData();
+            ObtainPowerData();
             r.sleep();
         }
     }
@@ -75,7 +75,8 @@ namespace provider_power {
     {
         for(int i = 0; i < 3; ++i)
         {
-            pollCmd(sonia_common::SendRS485Msg::SLAVE_PSU0, swapCmd[i]);    
+            pollCmd(sonia_common::SendRS485Msg::SLAVE_PSU0, swapCmd[i]);
+            ros::Duration(0.3).sleep();
         }
     }
 
