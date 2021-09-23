@@ -76,6 +76,7 @@ namespace provider_power {
         for(int i = 0; i < 3; ++i)
         {
             pollCmd(sonia_common::SendRS485Msg::SLAVE_PSU0, swapCmd[i]);
+            ros::Duration(0.3).sleep();
         }
     }
 
@@ -151,6 +152,5 @@ namespace provider_power {
         messageData.data.push_back(0x00);
 
         power_publisherRx_.publish(messageData);
-        ros::Duration(0.3).sleep();
     }
 }
