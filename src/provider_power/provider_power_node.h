@@ -32,10 +32,10 @@
 #define PROVIDER_POWER_PROVIDER_POWER_NODE_H
 
 #include <ros/ros.h>
-#include <sonia_common/PowerMsg.h>
 #include <sonia_common/SendRS485Msg.h>
-#include <std_msgs/MultiArrayDimension.h>
-#include <sonia_common/ActivateAllPS.h>
+#include <std_msgs/Float64MultiArray.h>
+#include <std_msgs/UInt8MultiArray.h>
+#include <std_msgs/Bool.h>
 
 namespace provider_power {
 
@@ -54,33 +54,38 @@ namespace provider_power {
         //============================================================================
         // P R I V A T E   M E T H O D S
 
-        void ObtainPowerData();
-
         void PowerDataCallBack(const sonia_common::SendRS485Msg::ConstPtr &receiveData);
 
-        void ActivateAllPsCallBack(const sonia_common::ActivateAllPS::ConstPtr &receiveData);
+        void AllMotorActivationCallBack(const std_msgs::Bool::ConstPtr &activation);
 
-        void pollCmd(uint8_t slave, uint8_t cmd);
+        void MotorActivationCallBack(const std_msgs::UInt8MultiArray::ConstPtr &activation);
 
-        uint8_t swapCmd[3] = {sonia_common::SendRS485Msg::CMD_VOLTAGE,sonia_common::SendRS485Msg::CMD_CURRENT,
-                                sonia_common::SendRS485Msg::CMD_READ_MOTOR}; // Voltage, current, motor read
-        std::string voltageString = "Voltage_M1_M2_M3_M4_M5_M6_M7_M8_BAT1_BAT2";
-        std::string currentString = "Current_M1_M2_M3_M4_M5_M6_M7_M8_BAT1_BAT2";
+        void VoltageCMD(const std::vector<uint8_t> data, const uint8_t size);
+
+        void CurrentCMD(const std::vector<uint8_t> data, const uint8_t size);
+
+        void ReadMotorCMD(const std::vector<uint8_t> data, const uint8_t size);
+
+        int INA22X_DataInterpretation(const std::vector<uint8_t> &req, std::vector<double> &res, uint8_t size_request);
+
+        void MotorActivation(const std::vector<uint8_t> data);
 
         ros::NodeHandlePtr nh_;
-        ros::Publisher power_publisher_;
-        ros::Publisher power_publisherRx_;
-
-        ros::Subscriber power_subscriberTx_;
-        ros::Subscriber activate_all_ps_;
-        ros::ServiceServer power_activation_;
+        ros::Publisher voltage_publisher_;
+        ros::Publisher current_publisher_;
+        ros::Publisher motor_publisher_;
+        ros::Publisher rs485_publisher_;
+        ros::Subscriber rs485_subscriber_;
+        ros::Subscriber all_activation_subscriber_;
+        ros::Subscriber activation_subscriber_;
 
         union powerData {
             uint8_t Bytes[4];
             float_t info;
         };
 
-        uint8_t nb_motor = 8;
+        const uint8_t nb_motor = 8;
+        const uint8_t nb_battery = 2;
     };
 }  // namespace provider_power
 

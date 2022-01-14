@@ -163,6 +163,3 @@ rospack*
 rosstack*
 rosdep
 cmake-build-debug/
-
-#Vscode
-**/settings.json
