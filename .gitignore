@@ -165,4 +165,4 @@ rosdep
 cmake-build-debug/
 
 #Vscode
-**/.vscode/settings.json
+**/settings.json
