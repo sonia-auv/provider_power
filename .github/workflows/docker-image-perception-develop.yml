@@ -81,3 +81,4 @@ jobs:
       - name: Push Image to Github Packages Registry
         run: |
           docker push --all-tags ${GITHUB_REMOTE_URL}/${IMAGE_NAME}
+
