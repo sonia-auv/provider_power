@@ -32,12 +32,10 @@
 #define PROVIDER_POWER_PROVIDER_POWER_NODE_H
 
 #include <ros/ros.h>
-#include <geometry_msgs/Twist.h>
-#include <sonia_common/PowerMsg.h>
-#include <sonia_common/PowerInfo.h>
 #include <sonia_common/SendRS485Msg.h>
-#include <sonia_common/ManagePowerSupplyBus.h>
-#include <sonia_common/ActivateAllPS.h>
+#include <std_msgs/Float64MultiArray.h>
+#include <std_msgs/UInt8MultiArray.h>
+#include <std_msgs/Bool.h>
 
 namespace provider_power {
 
@@ -45,82 +43,50 @@ namespace provider_power {
     public:
         //============================================================================
         // P U B L I C   C / D T O R S
-
         ProviderPowerNode(ros::NodeHandlePtr &nh);
-
         ~ProviderPowerNode();
 
-        //============================================================================
+        //==========================================================================
         // P U B L I C   M E T H O D S
-        void PublishPowerMsg(const sonia_common::SendRS485Msg::ConstPtr &publishData);
-
-        void PublishPowerData();
-
-        void PowerDataCallBack(const sonia_common::SendRS485Msg::ConstPtr &receiveData);
-
-        void ActivateAllPsCallBack(const sonia_common::ActivateAllPS::ConstPtr &receiveData);
-
-        bool powerActivation(sonia_common::ManagePowerSupplyBus::Request &req,
-                         sonia_common::ManagePowerSupplyBus::Response &res);
-
-        void powerCheckActivation();
-
-        void pollPower(uint8_t slave);
-
-        void pollCmd(uint8_t slave, uint8_t cmd);
-
-        void wattCalculation(const uint8_t slave, const uint8_t cmd);
-
-        void initialize();
-
-        uint8_t swapSlave[4] = {sonia_common::SendRS485Msg::SLAVE_powersupply0, sonia_common::SendRS485Msg::SLAVE_powersupply1,
-                                       sonia_common::SendRS485Msg::SLAVE_powersupply2, sonia_common::SendRS485Msg::SLAVE_powersupply3};
-        uint8_t swapCmd[3] = {sonia_common::SendRS485Msg::CMD_PS_ACT_12V, sonia_common::SendRS485Msg::CMD_PS_ACT_16V_1,
-                                     sonia_common::SendRS485Msg::CMD_PS_ACT_16V_2};
-
-        //const ros::TimerCallback wattCallBack;
-        //const ros::TimerCallback wattCallBack(const ros::TimerCallback);
-
-        float watt5min[4][3];
-        float watt1h[4][3];
-        float watttotal[4][3];
-
-
-        float powerInformation[4][6];
-
-
+        void Spin();
 
     private:
         //============================================================================
-        // P R I V A T E   M E M B E R S
+        // P R I V A T E   M E T H O D S
 
+        void PowerDataCallBack(const sonia_common::SendRS485Msg::ConstPtr &receiveData);
 
+        void AllMotorActivationCallBack(const std_msgs::Bool::ConstPtr &activation);
+
+        void MotorActivationCallBack(const std_msgs::UInt8MultiArray::ConstPtr &activation);
+
+        void VoltageCMD(const std::vector<uint8_t> data, const uint8_t size);
+
+        void CurrentCMD(const std::vector<uint8_t> data, const uint8_t size);
+
+        void ReadMotorCMD(const std::vector<uint8_t> data, const uint8_t size);
+
+        int INA22X_DataInterpretation(const std::vector<uint8_t> &req, std::vector<double> &res, uint8_t size_request);
+
+        void MotorActivation(const std::vector<uint8_t> data);
 
         ros::NodeHandlePtr nh_;
-        ros::Publisher power_publisher_;
-        ros::Publisher power_publisherRx_;
-        ros::Publisher power_publisherInfo_;
-        ros::Subscriber power_subscriberTx_;
-        ros::Subscriber activate_all_ps_;
-        ros::ServiceServer power_activation_;
-        ros::Timer timerForWatt_;
-
-
-        const uint8_t next = 3;
-
-        const uint16_t convert = 1000;
-
+        ros::Publisher voltage_publisher_;
+        ros::Publisher current_publisher_;
+        ros::Publisher motor_publisher_;
+        ros::Publisher rs485_publisher_;
+        ros::Subscriber rs485_subscriber_;
+        ros::Subscriber all_activation_subscriber_;
+        ros::Subscriber activation_subscriber_;
 
         union powerData {
             uint8_t Bytes[4];
-            float info;
+            float_t info;
         };
 
-        uint16_t nbTime[4];
-
+        const uint8_t nb_motor = 8;
+        const uint8_t nb_battery = 2;
     };
-
-
 }  // namespace provider_power
 
 
