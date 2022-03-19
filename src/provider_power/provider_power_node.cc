@@ -71,8 +71,11 @@ namespace provider_power {
     void ProviderPowerNode::PowerDataCallBack(const sonia_common::SendRS485Msg::ConstPtr &receiveData) 
     {
         if (receiveData->slave >= sonia_common::SendRS485Msg::SLAVE_PSU0 && receiveData->slave <= sonia_common::SendRS485Msg::SLAVE_PSU3) {
-
-            switch (receiveData->cmd) // Size is there to add support to AUV7 when the time will come
+            
+        }
+        
+        if (receiveData->slave == sonia_common::SendRS485Msg::SLAVE_PWR_MANAGEMENT) {
+            switch (receiveData->cmd)
             {
             case sonia_common::SendRS485Msg::CMD_VOLTAGE:
                 VoltageCMD(receiveData->data, nb_motor + nb_battery);
