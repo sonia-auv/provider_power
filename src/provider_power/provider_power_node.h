@@ -36,6 +36,8 @@
 #include <std_msgs/Float64MultiArray.h>
 #include <std_msgs/UInt8MultiArray.h>
 #include <std_msgs/Bool.h>
+#include <thread>
+#include <sharedQueue.h>
 
 namespace provider_power {
 
@@ -54,7 +56,7 @@ namespace provider_power {
         //============================================================================
         // P R I V A T E   M E T H O D S
 
-        void PowerDataCallBack(const sonia_common::SendRS485Msg::ConstPtr &receiveData);
+        void PowerDataCallBack(const sonia_common::SendRS485Msg::ConstPtr &receivedData);
 
         void AllMotorActivationCallBack(const std_msgs::Bool::ConstPtr &activation);
 
@@ -70,6 +72,8 @@ namespace provider_power {
 
         void MotorActivation(const std::vector<uint8_t> data);
 
+        void writeData();
+
         ros::NodeHandlePtr nh_;
         ros::Publisher voltage_publisher_;
         ros::Publisher current_publisher_;
@@ -78,6 +82,11 @@ namespace provider_power {
         ros::Subscriber rs485_subscriber_;
         ros::Subscriber all_activation_subscriber_;
         ros::Subscriber activation_subscriber_;
+
+        std::thread reader;
+        std::thread writter;
+
+        SharedQueue<sonia_common::SendRS485Msg::ConstPtr> writerQueue;
 
         union powerData {
             uint8_t Bytes[4];

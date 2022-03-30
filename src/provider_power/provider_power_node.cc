@@ -49,6 +49,10 @@ namespace provider_power {
         rs485_subscriber_ = nh_->subscribe("/interface_rs485/dataTx", 100, &ProviderPowerNode::PowerDataCallBack, this);
         all_activation_subscriber_ = nh_->subscribe("/provider_power/activate_all_motor", 100, &ProviderPowerNode::AllMotorActivationCallBack, this);
         activation_subscriber_ = nh_->subscribe("/provider_power/activate_motor", 100, &ProviderPowerNode::MotorActivationCallBack, this);
+
+        // Threads
+        reader = std::thread(std::bind(&ProviderPowerNode::readData, this));
+        writer = std::thread(std::bind(&ProviderPowerNode::writeData, this));
     }
 
 //------------------------------------------------------------------------------
@@ -68,23 +72,42 @@ namespace provider_power {
         }
     }
 
-    void ProviderPowerNode::PowerDataCallBack(const sonia_common::SendRS485Msg::ConstPtr &receiveData) 
+    void ProviderPowerNode::PowerDataCallBack(const sonia_common::SendRS485Msg::ConstPtr &receivedData) 
     {
-        if (receiveData->slave >= sonia_common::SendRS485Msg::SLAVE_PSU0 && receiveData->slave <= sonia_common::SendRS485Msg::SLAVE_PSU3) {
-            
-        }
-        
-        if (receiveData->slave == sonia_common::SendRS485Msg::SLAVE_PWR_MANAGEMENT) {
-            switch (receiveData->cmd)
+        if (receivedData->slave >= sonia_common::SendRS485Msg::SLAVE_PSU0 && receivedData->slave <= sonia_common::SendRS485Msg::SLAVE_PSU3) {
+
+            ROS_DEBUG("receive a rs485 data")
+            writerQueue.push_back(receivedData)
+
+
+            switch (receivedData->cmd)
             {
             case sonia_common::SendRS485Msg::CMD_VOLTAGE:
-                VoltageCMD(receiveData->data, nb_motor + nb_battery);
+                VoltageCMD(receivedData->data, nb_motor/4 + nb_battery);
                 break;
             case sonia_common::SendRS485Msg::CMD_CURRENT:
-                CurrentCMD(receiveData->data, nb_motor + nb_battery);
+                CurrentCMD(receivedData->data, nb_motor/4 + nb_battery/2);
                 break;
             case sonia_common::SendRS485Msg::CMD_READ_MOTOR:
-                ReadMotorCMD(receiveData->data, nb_motor);
+                ReadMotorCMD(receivedData->data, nb_motor/4);
+                break;
+            default:
+                ROS_WARN_STREAM("Unknow CMD to provider_power");
+                break;
+            }
+        }
+        
+        if (receivedData->slave == sonia_common::SendRS485Msg::SLAVE_PWR_MANAGEMENT) {
+            switch (receivedData->cmd)
+            {
+            case sonia_common::SendRS485Msg::CMD_VOLTAGE:
+                VoltageCMD(receivedData->data, nb_motor + nb_battery);
+                break;
+            case sonia_common::SendRS485Msg::CMD_CURRENT:
+                CurrentCMD(receivedData->data, nb_motor + nb_battery);
+                break;
+            case sonia_common::SendRS485Msg::CMD_READ_MOTOR:
+                ReadMotorCMD(receivedData->data, nb_motor);
                 break;
             default:
                 ROS_WARN_STREAM("Unknow CMD to provider_power");
