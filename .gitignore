@@ -155,7 +155,6 @@ crashlytics-build.properties
 # Coverring ROS ignores
 build/
 devel/
-/src/
 /log/
 latest
 rospack*
