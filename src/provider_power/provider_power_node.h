@@ -37,7 +37,7 @@
 #include <std_msgs/UInt8MultiArray.h>
 #include <std_msgs/Bool.h>
 #include <thread>
-#include <sharedQueue.h>
+#include "sharedQueue.h"
 
 namespace provider_power {
 
@@ -71,8 +71,13 @@ namespace provider_power {
         int INA22X_DataInterpretation(const std::vector<uint8_t> &req, std::vector<double> &res, uint8_t size_request);
 
         void MotorActivation(const std::vector<uint8_t> data);
+        //void AUV8MotorActivation(const std::vector<uint8_t> data);
 
         void writeData();
+        void readDataSlave0();
+        void readDataSlave1();
+        void readDataSlave2();
+        void readDataSlave3();
 
         ros::NodeHandlePtr nh_;
         ros::Publisher voltage_publisher_;
@@ -83,10 +88,17 @@ namespace provider_power {
         ros::Subscriber all_activation_subscriber_;
         ros::Subscriber activation_subscriber_;
 
-        std::thread reader;
-        std::thread writter;
+        std::thread readerSlave0;
+        std::thread readerSlave1;
+        std::thread readerSlave2;
+        std::thread readerSlave3;
+        std::thread writer;
 
         SharedQueue<sonia_common::SendRS485Msg::ConstPtr> writerQueue;
+        SharedQueue<sonia_common::SendRS485Msg::ConstPtr> readerQueueSlave0;
+        SharedQueue<sonia_common::SendRS485Msg::ConstPtr> readerQueueSlave1;
+        SharedQueue<sonia_common::SendRS485Msg::ConstPtr> readerQueueSlave2;
+        SharedQueue<sonia_common::SendRS485Msg::ConstPtr> readerQueueSlave3;
 
         union powerData {
             uint8_t Bytes[4];
