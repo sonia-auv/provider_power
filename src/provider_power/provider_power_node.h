@@ -107,6 +107,7 @@ namespace provider_power {
 
         const uint8_t nb_motor = 8;
         const uint8_t nb_battery = 2;
+        const char* auv;
     };
 }  // namespace provider_power
 
