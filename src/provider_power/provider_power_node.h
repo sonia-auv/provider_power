@@ -71,9 +71,10 @@ namespace provider_power {
         int INA22X_DataInterpretation(const std::vector<uint8_t> &req, std::vector<double> &res, uint8_t size_request);
 
         void MotorActivation(const std::vector<uint8_t> data);
-        //void AUV8MotorActivation(const std::vector<uint8_t> data);
 
-        void writeData();
+        void writeVoltageData();
+        void writeCurrentData();
+        void writeMotorData();
         void readDataSlave0();
         void readDataSlave1();
         void readDataSlave2();
@@ -92,13 +93,16 @@ namespace provider_power {
         std::thread readerSlave1;
         std::thread readerSlave2;
         std::thread readerSlave3;
-        std::thread writer;
+        std::thread writerVoltage;
+        std::thread writerCurrent;
+        std::thread writerMotor;
 
         SharedQueue<sonia_common::SendRS485Msg::ConstPtr> writerQueue;
         SharedQueue<sonia_common::SendRS485Msg::ConstPtr> readerQueueSlave0;
         SharedQueue<sonia_common::SendRS485Msg::ConstPtr> readerQueueSlave1;
         SharedQueue<sonia_common::SendRS485Msg::ConstPtr> readerQueueSlave2;
         SharedQueue<sonia_common::SendRS485Msg::ConstPtr> readerQueueSlave3;
+        SharedQueue<sonia_common::SendRS485Msg::ConstPtr> parsedQueueVoltageSlave0;
 
         union powerData {
             uint8_t Bytes[4];
