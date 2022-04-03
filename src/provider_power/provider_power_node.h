@@ -62,6 +62,8 @@ namespace provider_power {
 
         void MotorActivationCallBack(const std_msgs::UInt8MultiArray::ConstPtr &activation);
 
+        //void GetCommand(const );
+
         void VoltageCMD(const std::vector<uint8_t> data, const uint8_t size);
 
         void CurrentCMD(const std::vector<uint8_t> data, const uint8_t size);
@@ -75,10 +77,6 @@ namespace provider_power {
         void writeVoltageData();
         void writeCurrentData();
         void writeMotorData();
-        void readDataSlave0();
-        void readDataSlave1();
-        void readDataSlave2();
-        void readDataSlave3();
 
         ros::NodeHandlePtr nh_;
         ros::Publisher voltage_publisher_;
@@ -89,25 +87,35 @@ namespace provider_power {
         ros::Subscriber all_activation_subscriber_;
         ros::Subscriber activation_subscriber_;
 
-        std::thread readerSlave0;
-        std::thread readerSlave1;
-        std::thread readerSlave2;
-        std::thread readerSlave3;
         std::thread writerVoltage;
         std::thread writerCurrent;
         std::thread writerMotor;
 
-        SharedQueue<sonia_common::SendRS485Msg::ConstPtr> writerQueue;
-        SharedQueue<sonia_common::SendRS485Msg::ConstPtr> readerQueueSlave0;
-        SharedQueue<sonia_common::SendRS485Msg::ConstPtr> readerQueueSlave1;
-        SharedQueue<sonia_common::SendRS485Msg::ConstPtr> readerQueueSlave2;
-        SharedQueue<sonia_common::SendRS485Msg::ConstPtr> readerQueueSlave3;
-        SharedQueue<sonia_common::SendRS485Msg::ConstPtr> parsedQueueVoltageSlave0;
+        SharedQueue<std_msgs::Float64MultiArray::ConstPtr> writerQueueVoltage;
+        SharedQueue<std_msgs::Float64MultiArray::ConstPtr> writerQueueCurrent;
+        SharedQueue<std_msgs::Float64MultiArray::ConstPtr> writerQueueMotor;
+        SharedQueue<std::vector<double>> parsedQueueVoltageSlave0;
+        SharedQueue<std::vector<double>> parsedQueueVoltageSlave1;
+        SharedQueue<std::vector<double>> parsedQueueVoltageSlave2;
+        SharedQueue<std::vector<double>> parsedQueueVoltageSlave3;
+        SharedQueue<std_msgs::Float64MultiArray::ConstPtr> parsedQueueCurrentSlave0;
+        SharedQueue<std_msgs::Float64MultiArray::ConstPtr> parsedQueueCurrentSlave1;
+        SharedQueue<std_msgs::Float64MultiArray::ConstPtr> parsedQueueCurrentSlave2;
+        SharedQueue<std_msgs::Float64MultiArray::ConstPtr> parsedQueueCurrentSlave3;
+        SharedQueue<std_msgs::Float64MultiArray::ConstPtr> parsedQueueMotorSlave0;
+        SharedQueue<std_msgs::Float64MultiArray::ConstPtr> parsedQueueMotorSlave1;
+        SharedQueue<std_msgs::Float64MultiArray::ConstPtr> parsedQueueMotorSlave2;
+        SharedQueue<std_msgs::Float64MultiArray::ConstPtr> parsedQueueMotorSlave3;
 
         union powerData {
             uint8_t Bytes[4];
             float_t info;
         };
+
+        // struct voltageData {
+        //     sonia_common::SendRS485Msg msg;
+        //     std_msgs::Float64MultiArray data;
+        // };
 
         const uint8_t nb_motor = 8;
         const uint8_t nb_battery = 2;

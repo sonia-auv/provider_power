@@ -51,10 +51,6 @@ namespace provider_power {
         activation_subscriber_ = nh_->subscribe("/provider_power/activate_motor", 100, &ProviderPowerNode::MotorActivationCallBack, this);
 
         // Threads
-        readerSlave0 = std::thread(std::bind(&ProviderPowerNode::readDataSlave0, this));
-        readerSlave1 = std::thread(std::bind(&ProviderPowerNode::readDataSlave1, this));
-        readerSlave2 = std::thread(std::bind(&ProviderPowerNode::readDataSlave2, this));
-        readerSlave3 = std::thread(std::bind(&ProviderPowerNode::readDataSlave3, this));
         writerVoltage = std::thread(std::bind(&ProviderPowerNode::writeVoltageData, this));
         writerCurrent = std::thread(std::bind(&ProviderPowerNode::writeCurrentData, this));
         writerMotor = std::thread(std::bind(&ProviderPowerNode::writeMotorData, this));
@@ -89,25 +85,77 @@ namespace provider_power {
     {
         if (receivedData->slave >= sonia_common::SendRS485Msg::SLAVE_PSU0 && receivedData->slave <= sonia_common::SendRS485Msg::SLAVE_PSU3) {
 
-            ROS_INFO("receive a rs485 data");
+            //std_msgs::Float64MultiArray msg;
+            std::vector<double> msg;
 
-            switch (receivedData->slave)
+            switch (receivedData->cmd)
             {
-                case sonia_common::SendRS485Msg::SLAVE_PSU0:
-                    ROS_INFO("receive a rs485 data from SLAVE 0");
-                    readerQueueSlave0.push_back(receivedData);
+                case sonia_common::SendRS485Msg::CMD_VOLTAGE:
+                    switch (receivedData->slave)
+                    {
+                        case sonia_common::SendRS485Msg::SLAVE_PSU0:
+                            ROS_INFO("voltage slave 0");
+                            if(INA22X_DataInterpretation(receivedData->data, msg, receivedData->data.size()) < 0) 
+                            {
+                                ROS_WARN_STREAM("ERROR in the message. Dropping VOLTAGE packet");
+                                return;
+                            }
+                            else
+                            {
+                                parsedQueueVoltageSlave0.push_back(msg);
+                            }
+                            break;
+                        case sonia_common::SendRS485Msg::SLAVE_PSU1:
+                            ROS_INFO("voltage slave 1");
+                            if(INA22X_DataInterpretation(receivedData->data, msg, receivedData->data.size()) < 0) 
+                            {
+                                ROS_WARN_STREAM("ERROR in the message. Dropping VOLTAGE packet");
+                                return;
+                            }
+                            else
+                            {
+                                parsedQueueVoltageSlave1.push_back(msg);
+                            }
+                            break;
+                        case sonia_common::SendRS485Msg::SLAVE_PSU2:
+                            ROS_INFO("voltage slave 2");
+                            if(INA22X_DataInterpretation(receivedData->data, msg, receivedData->data.size()) < 0) 
+                            {
+                                ROS_WARN_STREAM("ERROR in the message. Dropping VOLTAGE packet");
+                                return;
+                            }
+                            else
+                            {
+                                parsedQueueVoltageSlave2.push_back(msg);
+                            }
+                            break;
+                        case sonia_common::SendRS485Msg::SLAVE_PSU3:
+                            ROS_INFO("voltage slave 3");
+                            if(INA22X_DataInterpretation(receivedData->data, msg, receivedData->data.size()) < 0) 
+                            {
+                                ROS_WARN_STREAM("ERROR in the message. Dropping VOLTAGE packet");
+                                return;
+                            }
+                            else
+                            {
+                                parsedQueueVoltageSlave3.push_back(msg);
+                            }
+                            break;
+                        default:
+                            ROS_WARN_STREAM("Unknown SLAVE to provider_power");
+                            break;
+                    }
                     break;
-                case sonia_common::SendRS485Msg::SLAVE_PSU1:
+                case sonia_common::SendRS485Msg::CMD_CURRENT:
                     ROS_INFO("receive a rs485 data from SLAVE 1");
-                    readerQueueSlave1.push_back(receivedData);
+                    //readerQueueSlave1.push_back(receivedData);
                     break;
-                case sonia_common::SendRS485Msg::SLAVE_PSU2:
+                case sonia_common::SendRS485Msg::CMD_READ_MOTOR:
                     ROS_INFO("receive a rs485 data from SLAVE 2");
-                    readerQueueSlave2.push_back(receivedData);
+                    //readerQueueSlave2.push_back(receivedData);
                     break;
-                case sonia_common::SendRS485Msg::SLAVE_PSU3:
-                    ROS_INFO("receive a rs485 data from SLAVE 3");
-                    readerQueueSlave3.push_back(receivedData);
+                default:
+                    ROS_WARN_STREAM("Unknow CMD to provider_power");
                     break;
             }
         }
@@ -130,7 +178,7 @@ namespace provider_power {
             }
         }
     }
-    
+
     void ProviderPowerNode::AllMotorActivationCallBack(const std_msgs::Bool::ConstPtr &activation)
     {
         int size;
@@ -197,7 +245,7 @@ namespace provider_power {
     int ProviderPowerNode::INA22X_DataInterpretation(const std::vector<uint8_t> &req, std::vector<double> &res, uint8_t size_request)
     {
         uint8_t size_req = req.size();
-        if(size_req / 4 != size_request) return -1;
+        if(size_req % 4 != 0) return -1;
 
         powerData value;
 
@@ -236,169 +284,38 @@ namespace provider_power {
         
     }
 
-    void ProviderPowerNode::readDataSlave0()
-    {
-        // ROS_INFO("begin the read data slave 0 thread");
-        // while(!ros::isShuttingDown())
-        // {
-        //     ros::Duration(0.1).sleep();
-        //     while(!readerQueueSlave0.empty())
-        //     {
-        //         ROS_INFO("received message on slave 0");
-        //         sonia_common::SendRS485Msg::ConstPtr msg_ptr = readerQueueSlave0.get_n_pop_front();
-        //         sonia_common::SendRS485Msg msg;
-        //         msg->slave = msg_ptr->slave;
-        //         msg->cmd = msg_ptr->cmd;
-                
-        //         switch (msg_ptr->cmd)
-        //         {
-        //         case sonia_common::SendRS485Msg::CMD_VOLTAGE:
-        //             if(INA22X_DataInterpretation(msg_ptr->data, msg.data, msg_ptr->data.size()) < 0) 
-        //             {
-        //                 ROS_WARN_STREAM("ERROR in the message. Dropping CURRENT packet");
-        //             }
-        //             parsedQueueVoltageSlave0.push_back(msg);
-        //             break;
-        //         case sonia_common::SendRS485Msg::CMD_CURRENT:
-        //             //INA22X_DataInterpretation(msg_ptr->data, data, msg_ptr->data.size());
-        //             break;
-        //         case sonia_common::SendRS485Msg::CMD_READ_MOTOR:
-        //             //ReadMotorCMD(receivedData->data, nb_motor/4);
-        //             break;
-        //         default:
-        //             ROS_WARN_STREAM("Unknow CMD to provider_power");
-        //             break;
-        //         }
-        //     }
-        // }
-
-
-    }
-
-    void ProviderPowerNode::readDataSlave1()
-    {
-        ROS_INFO("begin the read data slave 1 thread");
-        // while(!ros::isShuttingDown())
-        // {
-        //     ros::Duration(0.1).sleep();
-        //     while(!readerQueueSlave0.empty())
-        //     {
-        //         sonia_common::SendRS485Msg::ConstPtr msg_ptr = readerQueueSlave0.get_n_pop_front();
-
-        //         size_t data_size = msg_ptr->data.size();
-        //         uint8_t data[data_size];
-        //     }
-        // }
-
-        // switch (receivedData->cmd)
-        //     {
-        //     case sonia_common::SendRS485Msg::CMD_VOLTAGE:
-        //         VoltageCMD(receivedData->data, nb_motor/4 + nb_battery);
-        //         break;
-        //     case sonia_common::SendRS485Msg::CMD_CURRENT:
-        //         CurrentCMD(receivedData->data, nb_motor/4 + nb_battery/2);
-        //         break;
-        //     case sonia_common::SendRS485Msg::CMD_READ_MOTOR:
-        //         ReadMotorCMD(receivedData->data, nb_motor/4);
-        //         break;
-        //     default:
-        //         ROS_WARN_STREAM("Unknow CMD to provider_power");
-        //         break;
-        //     }
-    }
-
-    void ProviderPowerNode::readDataSlave2()
-    {
-        ROS_INFO("begin the read data slave 2 thread");
-        // while(!ros::isShuttingDown())
-        // {
-        //     ros::Duration(0.1).sleep();
-        //     while(!readerQueueSlave0.empty())
-        //     {
-        //         sonia_common::SendRS485Msg::ConstPtr msg_ptr = readerQueueSlave0.get_n_pop_front();
-
-        //         size_t data_size = msg_ptr->data.size();
-        //         uint8_t data[data_size];
-        //     }
-        // }
-
-        // switch (receivedData->cmd)
-        //     {
-        //     case sonia_common::SendRS485Msg::CMD_VOLTAGE:
-        //         VoltageCMD(receivedData->data, nb_motor/4 + nb_battery);
-        //         break;
-        //     case sonia_common::SendRS485Msg::CMD_CURRENT:
-        //         CurrentCMD(receivedData->data, nb_motor/4 + nb_battery/2);
-        //         break;
-        //     case sonia_common::SendRS485Msg::CMD_READ_MOTOR:
-        //         ReadMotorCMD(receivedData->data, nb_motor/4);
-        //         break;
-        //     default:
-        //         ROS_WARN_STREAM("Unknow CMD to provider_power");
-        //         break;
-        //     }
-    }
-
-    void ProviderPowerNode::readDataSlave3()
-    {
-        ROS_INFO("begin the read data slave 3 thread");
-        // while(!ros::isShuttingDown())
-        // {
-        //     ros::Duration(0.1).sleep();
-        //     while(!readerQueueSlave0.empty())
-        //     {
-        //         sonia_common::SendRS485Msg::ConstPtr msg_ptr = readerQueueSlave0.get_n_pop_front();
-
-        //         size_t data_size = msg_ptr->data.size();
-        //         uint8_t data[data_size];
-        //     }
-        // }
-
-        // switch (receivedData->cmd)
-        //     {
-        //     case sonia_common::SendRS485Msg::CMD_VOLTAGE:
-        //         VoltageCMD(receivedData->data, nb_motor/4 + nb_battery);
-        //         break;
-        //     case sonia_common::SendRS485Msg::CMD_CURRENT:
-        //         CurrentCMD(receivedData->data, nb_motor/4 + nb_battery/2);
-        //         break;
-        //     case sonia_common::SendRS485Msg::CMD_READ_MOTOR:
-        //         ReadMotorCMD(receivedData->data, nb_motor/4);
-        //         break;
-        //     default:
-        //         ROS_WARN_STREAM("Unknow CMD to provider_power");
-        //         break;
-        //     }
-    }
-
     void ProviderPowerNode::writeVoltageData()
     {
-        // ROS_INFO("begin the write voltage data thread");
-        // while(!ros::isShuttingDown())
-        // {
-        //     ros::Duration(0.1).sleep();
-        //     while(!parsedQueueVoltageSlave0.empty())
-        //     {
-        //         sonia_common::SendRS485Msg::ConstPtr msg_ptr_slave0 = parsedQueueVoltageSlave0.get_n_pop_front();
-        //     }
-            
-        // }
+        while(!ros::isShuttingDown())
+        {
+            ros::Duration(0.1).sleep();
+            while(!parsedQueueVoltageSlave0.empty() && !parsedQueueVoltageSlave1.empty() && !parsedQueueVoltageSlave2.empty() && !parsedQueueVoltageSlave3.empty())
+            {
+                // std::vector<uint8_t> act(size);
 
-        // switch (receivedData->cmd)
-        //     {
-        //     case sonia_common::SendRS485Msg::CMD_VOLTAGE:
-        //         VoltageCMD(receivedData->data, nb_motor/4 + nb_battery);
-        //         break;
-        //     case sonia_common::SendRS485Msg::CMD_CURRENT:
-        //         CurrentCMD(receivedData->data, nb_motor/4 + nb_battery/2);
-        //         break;
-        //     case sonia_common::SendRS485Msg::CMD_READ_MOTOR:
-        //         ReadMotorCMD(receivedData->data, nb_motor/4);
-        //         break;
-        //     default:
-        //         ROS_WARN_STREAM("Unknow CMD to provider_power");
-        //         break;
-        //     }
+                // std::vector<double> 
+
+                std_msgs::Float64MultiArray msg_16V;
+                //std_msgs::Float64MultiArray msg_12V;
+
+
+                std::vector<double> msg_slave0 = parsedQueueVoltageSlave0.get_n_pop_front();
+                std::vector<double> msg_slave1 = parsedQueueVoltageSlave1.get_n_pop_front();
+                std::vector<double> msg_slave2 = parsedQueueVoltageSlave2.get_n_pop_front();
+                std::vector<double> msg_slave3 = parsedQueueVoltageSlave3.get_n_pop_front();
+
+                //msg_16V.data = [msg_slave0(0),msg_slave1(0),msg_slave2(0),msg_slave3(0),msg_slave0(1),msg_slave1(1),msg_slave2(1),msg_slave3(1),msg_slave0(2),msg_slave1(2)];
+
+
+                //voltage_publisher_.publish(msg_16V);
+
+                //parsedData.msg.slave = msg_ptr->slave;
+                //parsedData.msg.cmd = msg_ptr->cmd;
+
+            }
+        }
+
+
     }
 
     void ProviderPowerNode::writeCurrentData()
