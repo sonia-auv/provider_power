@@ -40,7 +40,8 @@ namespace provider_power {
             : nh_(nh) 
     {
         // Publishers
-        voltage_publisher_ = nh_->advertise<std_msgs::Float64MultiArray>("/provider_power/voltage", 100);
+        voltage16V_publisher_ = nh_->advertise<std_msgs::Float64MultiArray>("/provider_power/voltage", 100);
+        voltage12V_publisher_ = nh_->advertise<std_msgs::Float64MultiArray>("/provider_power/voltage12V", 100);
         current_publisher_ = nh_->advertise<std_msgs::Float64MultiArray>("/provider_power/current", 100);
         motor_publisher_ = nh_->advertise<std_msgs::UInt8MultiArray>("/provider_power/motor_feedback", 100);
         rs485_publisher_ = nh_->advertise<sonia_common::SendRS485Msg>("/interface_rs485/dataRx", 100);
@@ -85,7 +86,6 @@ namespace provider_power {
     {
         if (receivedData->slave >= sonia_common::SendRS485Msg::SLAVE_PSU0 && receivedData->slave <= sonia_common::SendRS485Msg::SLAVE_PSU3) {
 
-            //std_msgs::Float64MultiArray msg;
             std::vector<double> msg;
 
             switch (receivedData->cmd)
@@ -94,8 +94,7 @@ namespace provider_power {
                     switch (receivedData->slave)
                     {
                         case sonia_common::SendRS485Msg::SLAVE_PSU0:
-                            ROS_INFO("voltage slave 0");
-                            if(INA22X_DataInterpretation(receivedData->data, msg, receivedData->data.size()) < 0) 
+                            if(INA22X_DataInterpretation(receivedData->data, msg, receivedData->data.size()/4) < 0) 
                             {
                                 ROS_WARN_STREAM("ERROR in the message. Dropping VOLTAGE packet");
                                 return;
@@ -106,8 +105,7 @@ namespace provider_power {
                             }
                             break;
                         case sonia_common::SendRS485Msg::SLAVE_PSU1:
-                            ROS_INFO("voltage slave 1");
-                            if(INA22X_DataInterpretation(receivedData->data, msg, receivedData->data.size()) < 0) 
+                            if(INA22X_DataInterpretation(receivedData->data, msg, receivedData->data.size()/4) < 0) 
                             {
                                 ROS_WARN_STREAM("ERROR in the message. Dropping VOLTAGE packet");
                                 return;
@@ -118,8 +116,7 @@ namespace provider_power {
                             }
                             break;
                         case sonia_common::SendRS485Msg::SLAVE_PSU2:
-                            ROS_INFO("voltage slave 2");
-                            if(INA22X_DataInterpretation(receivedData->data, msg, receivedData->data.size()) < 0) 
+                            if(INA22X_DataInterpretation(receivedData->data, msg, receivedData->data.size()/4) < 0) 
                             {
                                 ROS_WARN_STREAM("ERROR in the message. Dropping VOLTAGE packet");
                                 return;
@@ -130,8 +127,7 @@ namespace provider_power {
                             }
                             break;
                         case sonia_common::SendRS485Msg::SLAVE_PSU3:
-                            ROS_INFO("voltage slave 3");
-                            if(INA22X_DataInterpretation(receivedData->data, msg, receivedData->data.size()) < 0) 
+                            if(INA22X_DataInterpretation(receivedData->data, msg, receivedData->data.size()/4) < 0) 
                             {
                                 ROS_WARN_STREAM("ERROR in the message. Dropping VOLTAGE packet");
                                 return;
@@ -147,12 +143,76 @@ namespace provider_power {
                     }
                     break;
                 case sonia_common::SendRS485Msg::CMD_CURRENT:
-                    ROS_INFO("receive a rs485 data from SLAVE 1");
-                    //readerQueueSlave1.push_back(receivedData);
+                    switch (receivedData->slave)
+                    {
+                        case sonia_common::SendRS485Msg::SLAVE_PSU0:
+                            if(INA22X_DataInterpretation(receivedData->data, msg, receivedData->data.size()/4) < 0) 
+                            {
+                                ROS_WARN_STREAM("ERROR in the message. Dropping CURRENT packet");
+                                return;
+                            }
+                            else
+                            {
+                                parsedQueueCurrentSlave0.push_back(msg);
+                            }
+                            break;
+                        case sonia_common::SendRS485Msg::SLAVE_PSU1:
+                            if(INA22X_DataInterpretation(receivedData->data, msg, receivedData->data.size()/4) < 0) 
+                            {
+                                ROS_WARN_STREAM("ERROR in the message. Dropping CURRENT packet");
+                                return;
+                            }
+                            else
+                            {
+                                parsedQueueCurrentSlave1.push_back(msg);
+                            }
+                            break;
+                        case sonia_common::SendRS485Msg::SLAVE_PSU2:
+                            if(INA22X_DataInterpretation(receivedData->data, msg, receivedData->data.size()/4) < 0) 
+                            {
+                                ROS_WARN_STREAM("ERROR in the message. Dropping CURRENT packet");
+                                return;
+                            }
+                            else
+                            {
+                                parsedQueueCurrentSlave2.push_back(msg);
+                            }
+                            break;
+                        case sonia_common::SendRS485Msg::SLAVE_PSU3:
+                            if(INA22X_DataInterpretation(receivedData->data, msg, receivedData->data.size()/4) < 0) 
+                            {
+                                ROS_WARN_STREAM("ERROR in the message. Dropping CURRENT packet");
+                                return;
+                            }
+                            else
+                            {
+                                parsedQueueCurrentSlave3.push_back(msg);
+                            }
+                            break;
+                        default:
+                            ROS_WARN_STREAM("Unknown SLAVE to provider_power");
+                            break;
+                    }
                     break;
                 case sonia_common::SendRS485Msg::CMD_READ_MOTOR:
-                    ROS_INFO("receive a rs485 data from SLAVE 2");
-                    //readerQueueSlave2.push_back(receivedData);
+                    switch (receivedData->slave)
+                    {
+                        case sonia_common::SendRS485Msg::SLAVE_PSU0:
+                            readQueueMotorSlave0.push_back(receivedData->data);
+                            break;
+                        case sonia_common::SendRS485Msg::SLAVE_PSU1:
+                            readQueueMotorSlave1.push_back(receivedData->data);
+                            break;
+                        case sonia_common::SendRS485Msg::SLAVE_PSU2:
+                            readQueueMotorSlave2.push_back(receivedData->data);
+                            break;
+                        case sonia_common::SendRS485Msg::SLAVE_PSU3:
+                            readQueueMotorSlave3.push_back(receivedData->data);
+                            break;
+                        default:
+                            ROS_WARN_STREAM("Unknown SLAVE to provider_power");
+                            break;
+                    }
                     break;
                 default:
                     ROS_WARN_STREAM("Unknow CMD to provider_power");
@@ -214,7 +274,7 @@ namespace provider_power {
             ROS_WARN_STREAM("ERROR in the message. Dropping VOLTAGE packet");
             return;
         }
-        voltage_publisher_.publish(msg);
+        voltage16V_publisher_.publish(msg);
     }
 
     void ProviderPowerNode::CurrentCMD(const std::vector<uint8_t> data, const uint8_t size)
@@ -276,12 +336,10 @@ namespace provider_power {
         {
             for (int i = 0; i <= 3; i++)
             {
-                motor_request.slave = i; // Sorry
+                motor_request.slave = i;
                 rs485_publisher_.publish(motor_request);
             }
         }
-
-        
     }
 
     void ProviderPowerNode::writeVoltageData()
@@ -291,41 +349,85 @@ namespace provider_power {
             ros::Duration(0.1).sleep();
             while(!parsedQueueVoltageSlave0.empty() && !parsedQueueVoltageSlave1.empty() && !parsedQueueVoltageSlave2.empty() && !parsedQueueVoltageSlave3.empty())
             {
-                // std::vector<uint8_t> act(size);
-
-                // std::vector<double> 
-
                 std_msgs::Float64MultiArray msg_16V;
-                //std_msgs::Float64MultiArray msg_12V;
-
+                std_msgs::Float64MultiArray msg_12V;
 
                 std::vector<double> msg_slave0 = parsedQueueVoltageSlave0.get_n_pop_front();
                 std::vector<double> msg_slave1 = parsedQueueVoltageSlave1.get_n_pop_front();
                 std::vector<double> msg_slave2 = parsedQueueVoltageSlave2.get_n_pop_front();
                 std::vector<double> msg_slave3 = parsedQueueVoltageSlave3.get_n_pop_front();
 
-                //msg_16V.data = [msg_slave0(0),msg_slave1(0),msg_slave2(0),msg_slave3(0),msg_slave0(1),msg_slave1(1),msg_slave2(1),msg_slave3(1),msg_slave0(2),msg_slave1(2)];
+                for (int i = 0; i <= 2; i++)
+                {
+                    msg_16V.data.push_back(msg_slave0[i]);
+                    msg_16V.data.push_back(msg_slave1[i]);
+                    msg_16V.data.push_back(msg_slave2[i]);
+                    msg_16V.data.push_back(msg_slave3[i]);
+                }
+                msg_12V.data.push_back(msg_slave0[3]);
+                msg_12V.data.push_back(msg_slave1[3]);
+                msg_12V.data.push_back(msg_slave2[3]);
+                msg_12V.data.push_back(msg_slave3[3]);
 
-
-                //voltage_publisher_.publish(msg_16V);
-
-                //parsedData.msg.slave = msg_ptr->slave;
-                //parsedData.msg.cmd = msg_ptr->cmd;
+                voltage16V_publisher_.publish(msg_16V);
+                voltage12V_publisher_.publish(msg_12V);
 
             }
         }
-
-
     }
 
     void ProviderPowerNode::writeCurrentData()
     {
+        while(!ros::isShuttingDown())
+        {
+            ros::Duration(0.1).sleep();
+            while(!parsedQueueCurrentSlave0.empty() && !parsedQueueCurrentSlave1.empty() && !parsedQueueCurrentSlave2.empty() && !parsedQueueCurrentSlave3.empty())
+            {
+                std_msgs::Float64MultiArray msg;
 
+                std::vector<double> msg_slave0 = parsedQueueCurrentSlave0.get_n_pop_front();
+                std::vector<double> msg_slave1 = parsedQueueCurrentSlave1.get_n_pop_front();
+                std::vector<double> msg_slave2 = parsedQueueCurrentSlave2.get_n_pop_front();
+                std::vector<double> msg_slave3 = parsedQueueCurrentSlave3.get_n_pop_front();
+
+                for (int i = 0; i <= 2; i++)
+                {
+                    msg.data.push_back(msg_slave0[i]);
+                    msg.data.push_back(msg_slave1[i]);
+                    msg.data.push_back(msg_slave2[i]);
+                    msg.data.push_back(msg_slave3[i]);
+                }
+
+                current_publisher_.publish(msg);
+            }
+        }
     }
 
     void ProviderPowerNode::writeMotorData()
     {
+         while(!ros::isShuttingDown())
+        {
+            ros::Duration(0.1).sleep();
+            while(!readQueueMotorSlave0.empty() && !readQueueMotorSlave1.empty() && !readQueueMotorSlave2.empty() && !readQueueMotorSlave3.empty())
+            {
+                std_msgs::UInt8MultiArray msg;
 
+                std::vector<uint8_t> msg_slave0 = readQueueMotorSlave0.get_n_pop_front();
+                std::vector<uint8_t> msg_slave1 = readQueueMotorSlave1.get_n_pop_front();
+                std::vector<uint8_t> msg_slave2 = readQueueMotorSlave2.get_n_pop_front();
+                std::vector<uint8_t> msg_slave3 = readQueueMotorSlave3.get_n_pop_front();
+
+                for (int i = 0; i < 2; i++)
+                {
+                    msg.data.push_back(msg_slave0[i]);
+                    msg.data.push_back(msg_slave1[i]);
+                    msg.data.push_back(msg_slave2[i]);
+                    msg.data.push_back(msg_slave3[i]);
+                }
+
+                motor_publisher_.publish(msg);
+            }
+        }
     }
 
 }
