@@ -352,17 +352,30 @@ namespace provider_power {
                 std::vector<double> msg_slave2 = parsedQueueVoltageSlave2.get_n_pop_front();
                 std::vector<double> msg_slave3 = parsedQueueVoltageSlave3.get_n_pop_front();
 
-                for (int i = 0; i <= 2; i++)
-                {
-                    msg_16V.data.push_back(msg_slave0[i]);
-                    msg_16V.data.push_back(msg_slave1[i]);
-                    msg_16V.data.push_back(msg_slave2[i]);
-                    msg_16V.data.push_back(msg_slave3[i]);
-                }
-                msg_12V.data.push_back(msg_slave0[3]);
-                msg_12V.data.push_back(msg_slave1[3]);
-                msg_12V.data.push_back(msg_slave2[3]);
-                msg_12V.data.push_back(msg_slave3[3]);
+                msg_16V.data.push_back(msg_slave0[0]);
+                msg_16V.data.push_back(msg_slave1[0]);
+                msg_16V.data.push_back(msg_slave2[0]);
+                msg_16V.data.push_back(msg_slave3[0]);
+                msg_16V.data.push_back(msg_slave0[1]);
+                msg_16V.data.push_back(msg_slave1[1]);
+                msg_16V.data.push_back(msg_slave2[1]);
+                msg_16V.data.push_back(msg_slave3[1]);
+                msg_16V.data.push_back(msg_slave0[3]);
+                msg_16V.data.push_back(msg_slave1[3]);
+                msg_16V.data.push_back(msg_slave2[3]);
+                msg_16V.data.push_back(msg_slave3[3]);
+
+                // for (int i = 0; i <= 2; i++)
+                // {
+                //     msg_16V.data.push_back(msg_slave0[i]);
+                //     msg_16V.data.push_back(msg_slave1[i]);
+                //     msg_16V.data.push_back(msg_slave2[i]);
+                //     msg_16V.data.push_back(msg_slave3[i]);
+                // }
+                msg_12V.data.push_back(msg_slave0[2]);
+                msg_12V.data.push_back(msg_slave1[2]);
+                msg_12V.data.push_back(msg_slave2[2]);
+                msg_12V.data.push_back(msg_slave3[2]);
 
                 voltage16V_publisher_.publish(msg_16V);
                 voltage12V_publisher_.publish(msg_12V);
