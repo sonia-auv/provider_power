@@ -377,13 +377,6 @@ namespace provider_power {
                 msg_16V.data.push_back(msg_slave2[3]);
                 msg_16V.data.push_back(msg_slave3[3]);
 
-                // for (int i = 0; i <= 2; i++)
-                // {
-                //     msg_16V.data.push_back(msg_slave0[i]);
-                //     msg_16V.data.push_back(msg_slave1[i]);
-                //     msg_16V.data.push_back(msg_slave2[i]);
-                //     msg_16V.data.push_back(msg_slave3[i]);
-                // }
                 msg_12V.data.push_back(msg_slave0[2]);
                 msg_12V.data.push_back(msg_slave1[2]);
                 msg_12V.data.push_back(msg_slave2[2]);
