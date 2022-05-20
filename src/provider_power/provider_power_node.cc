@@ -57,7 +57,19 @@ namespace provider_power {
         writerMotor = std::thread(std::bind(&ProviderPowerNode::writeMotorData, this));
 
         // Check for env variable existence
-        std::getenv("AUV") ? auv = std::getenv("AUV"): auv = "AUV7";
+        if (strcmp(std::getenv("AUV"), "AUV8") == 0)
+        {
+            auv = "AUV8";
+        }
+        else if (strcmp(std::getenv("AUV"), "AUV7") == 0)
+        {
+            auv = "AUV7";
+        }
+        else 
+        {
+            ROS_ERROR_STREAM("No environnement variable found, using the default from AUV8");
+            auv = "AUV8";
+        }
     }
 
 //------------------------------------------------------------------------------
