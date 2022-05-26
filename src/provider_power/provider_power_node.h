@@ -90,6 +90,7 @@ namespace provider_power {
         std::thread writerCurrent;
         std::thread writerMotor;
 
+        // SharedQueue for AUV7
         SharedQueue<std_msgs::Float64MultiArray::ConstPtr> writerQueueVoltage;
         SharedQueue<std_msgs::Float64MultiArray::ConstPtr> writerQueueCurrent;
         SharedQueue<std_msgs::Float64MultiArray::ConstPtr> writerQueueMotor;
