@@ -364,6 +364,7 @@ namespace provider_power {
                 std::vector<double> msg_slave2 = parsedQueueVoltageSlave2.get_n_pop_front();
                 std::vector<double> msg_slave3 = parsedQueueVoltageSlave3.get_n_pop_front();
 
+                // Motors Voltage
                 msg_16V.data.push_back(msg_slave0[0]);
                 msg_16V.data.push_back(msg_slave1[0]);
                 msg_16V.data.push_back(msg_slave2[0]);
@@ -372,11 +373,12 @@ namespace provider_power {
                 msg_16V.data.push_back(msg_slave1[1]);
                 msg_16V.data.push_back(msg_slave2[1]);
                 msg_16V.data.push_back(msg_slave3[1]);
-                msg_16V.data.push_back(msg_slave0[3]);
-                msg_16V.data.push_back(msg_slave1[3]);
-                msg_16V.data.push_back(msg_slave2[3]);
-                msg_16V.data.push_back(msg_slave3[3]);
 
+                // Batteries Voltage
+                msg_16V.data.push_back((msg_slave0[3]+msg_slave1[3])/2);
+                msg_16V.data.push_back((msg_slave2[3]+msg_slave3[3])/2);
+
+                // 12V Voltage
                 msg_12V.data.push_back(msg_slave0[2]);
                 msg_12V.data.push_back(msg_slave1[2]);
                 msg_12V.data.push_back(msg_slave2[2]);
