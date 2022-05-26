@@ -36,6 +36,8 @@
 #include <std_msgs/Float64MultiArray.h>
 #include <std_msgs/UInt8MultiArray.h>
 #include <std_msgs/Bool.h>
+#include <thread>
+#include "sharedQueue.h"
 
 namespace provider_power {
 
@@ -54,7 +56,7 @@ namespace provider_power {
         //============================================================================
         // P R I V A T E   M E T H O D S
 
-        void PowerDataCallBack(const sonia_common::SendRS485Msg::ConstPtr &receiveData);
+        void PowerDataCallBack(const sonia_common::SendRS485Msg::ConstPtr &receivedData);
 
         void AllMotorActivationCallBack(const std_msgs::Bool::ConstPtr &activation);
 
@@ -70,14 +72,39 @@ namespace provider_power {
 
         void MotorActivation(const std::vector<uint8_t> data);
 
+        void writeVoltageData();
+        void writeCurrentData();
+        void writeMotorData();
+
         ros::NodeHandlePtr nh_;
-        ros::Publisher voltage_publisher_;
+        ros::Publisher voltage16V_publisher_;
+        ros::Publisher voltage12V_publisher_;
         ros::Publisher current_publisher_;
         ros::Publisher motor_publisher_;
         ros::Publisher rs485_publisher_;
         ros::Subscriber rs485_subscriber_;
         ros::Subscriber all_activation_subscriber_;
         ros::Subscriber activation_subscriber_;
+
+        std::thread writerVoltage;
+        std::thread writerCurrent;
+        std::thread writerMotor;
+
+        SharedQueue<std_msgs::Float64MultiArray::ConstPtr> writerQueueVoltage;
+        SharedQueue<std_msgs::Float64MultiArray::ConstPtr> writerQueueCurrent;
+        SharedQueue<std_msgs::Float64MultiArray::ConstPtr> writerQueueMotor;
+        SharedQueue<std::vector<double>> parsedQueueVoltageSlave0;
+        SharedQueue<std::vector<double>> parsedQueueVoltageSlave1;
+        SharedQueue<std::vector<double>> parsedQueueVoltageSlave2;
+        SharedQueue<std::vector<double>> parsedQueueVoltageSlave3;
+        SharedQueue<std::vector<double>> parsedQueueCurrentSlave0;
+        SharedQueue<std::vector<double>> parsedQueueCurrentSlave1;
+        SharedQueue<std::vector<double>> parsedQueueCurrentSlave2;
+        SharedQueue<std::vector<double>> parsedQueueCurrentSlave3;
+        SharedQueue<std::vector<uint8_t>> readQueueMotorSlave0;
+        SharedQueue<std::vector<uint8_t>> readQueueMotorSlave1;
+        SharedQueue<std::vector<uint8_t>> readQueueMotorSlave2;
+        SharedQueue<std::vector<uint8_t>> readQueueMotorSlave3;
 
         union powerData {
             uint8_t Bytes[4];
@@ -86,6 +113,7 @@ namespace provider_power {
 
         const uint8_t nb_motor = 8;
         const uint8_t nb_battery = 2;
+        const char* auv;
     };
 }  // namespace provider_power
 
