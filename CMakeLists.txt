@@ -69,8 +69,7 @@ include_directories(
 set( TARGET_NAME provider_power_node )
 add_executable( ${TARGET_NAME}
         ${provider_power_SRC_DIR}/main.cc
-        ${provider_power_SRC_DIR}/provider_power_node.cc
-        ${provider_power_SRC_DIR}/sharedQueue.h)
+        ${provider_power_SRC_DIR}/provider_power_node.cc)
 target_link_libraries( ${TARGET_NAME} ${catkin_LIBRARIES})
 set_target_properties( ${TARGET_NAME} PROPERTIES LINKER_LANGUAGE CXX )
 add_dependencies(${PROJECT_NAME}_node ${catkin_EXPORTED_TARGETS})
