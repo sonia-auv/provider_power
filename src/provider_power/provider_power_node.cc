@@ -237,9 +237,9 @@ namespace provider_power {
             case sonia_common::SendRS485Msg::CMD_CURRENT:
                 CurrentCMD(receivedData->data, nb_motor + nb_battery);
                 break;
-            // case sonia_common::SendRS485Msg::CMD_TEMPERATURE:
-
-            //     break;
+            case sonia_common::SendRS485Msg::CMD_TEMPERATURE:
+                TemperatureCMD(receivedData->data, nb_motor + nb_battery);
+                break;
             case sonia_common::SendRS485Msg::CMD_READ_MOTOR:
                 ReadMotorCMD(receivedData->data, nb_motor);
                 break;
@@ -311,6 +311,18 @@ namespace provider_power {
         }
         msg.data = data;
         motor_publisher_.publish(msg);
+    }
+
+    void ProviderPowerNode::TemperatureCMD(const std::vector<uint8_t> data, const uint8_t size)
+    {
+        std_msgs::Float64MultiArray msg;
+
+        if(INA22X_DataInterpretation(data, msg.data, size) < 0) 
+        {
+            ROS_WARN_STREAM("ERROR in the message. Dropping TEMPERATURE packet");
+            return;
+        }
+        temperature_publisher_.publish(msg);
     }
 
     int ProviderPowerNode::INA22X_DataInterpretation(const std::vector<uint8_t> &req, std::vector<double> &res, uint8_t size_request)
