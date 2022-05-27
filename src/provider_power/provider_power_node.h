@@ -68,6 +68,8 @@ namespace provider_power {
 
         void ReadMotorCMD(const std::vector<uint8_t> data, const uint8_t size);
 
+        void TemperatureCMD(const std::vector<uint8_t> data, const uint8_t size);
+
         int INA22X_DataInterpretation(const std::vector<uint8_t> &req, std::vector<double> &res, uint8_t size_request);
 
         void MotorActivation(const std::vector<uint8_t> data);
@@ -80,6 +82,7 @@ namespace provider_power {
         ros::Publisher voltage16V_publisher_;
         ros::Publisher voltage12V_publisher_;
         ros::Publisher current_publisher_;
+        ros::Publisher temperature_publisher_;
         ros::Publisher motor_publisher_;
         ros::Publisher rs485_publisher_;
         ros::Subscriber rs485_subscriber_;

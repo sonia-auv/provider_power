@@ -43,6 +43,7 @@ namespace provider_power {
         voltage16V_publisher_ = nh_->advertise<std_msgs::Float64MultiArray>("/provider_power/voltage", 100);
         voltage12V_publisher_ = nh_->advertise<std_msgs::Float64MultiArray>("/provider_power/voltage12V", 100);
         current_publisher_ = nh_->advertise<std_msgs::Float64MultiArray>("/provider_power/current", 100);
+        temperature_publisher_ = nh_->advertise<std_msgs::Float64MultiArray>("/provider_power/temperature", 100);
         motor_publisher_ = nh_->advertise<std_msgs::UInt8MultiArray>("/provider_power/motor_feedback", 100);
         rs485_publisher_ = nh_->advertise<sonia_common::SendRS485Msg>("/interface_rs485/dataRx", 100);
 
@@ -236,6 +237,9 @@ namespace provider_power {
             case sonia_common::SendRS485Msg::CMD_CURRENT:
                 CurrentCMD(receivedData->data, nb_motor + nb_battery);
                 break;
+            // case sonia_common::SendRS485Msg::CMD_TEMPERATURE:
+
+            //     break;
             case sonia_common::SendRS485Msg::CMD_READ_MOTOR:
                 ReadMotorCMD(receivedData->data, nb_motor);
                 break;
