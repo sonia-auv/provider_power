@@ -238,7 +238,7 @@ namespace provider_power {
                 CurrentCMD(receivedData->data, nb_motor + nb_battery);
                 break;
             case sonia_common::SendRS485Msg::CMD_TEMPERATURE:
-                TemperatureCMD(receivedData->data, nb_motor + nb_battery);
+                TemperatureCMD(receivedData->data, nb_motor + nb_battery); 
                 break;
             case sonia_common::SendRS485Msg::CMD_READ_MOTOR:
                 ReadMotorCMD(receivedData->data, nb_motor);
