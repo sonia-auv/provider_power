@@ -364,6 +364,7 @@ namespace provider_power {
             }
         }
     }
+    
 
     void ProviderPowerNode::writeVoltageData()
     {
