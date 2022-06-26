@@ -218,7 +218,7 @@ namespace provider_power {
                             readQueueMotorSlave3.push_back(receivedData->data);
                             break;
                         default:
-                            ROS_WARN_STREAM("Unknown SLAVE to provider_power");
+                            //ROS_WARN_STREAM("Unknown SLAVE to provider_power");
                             break;
                     }
                     break;
