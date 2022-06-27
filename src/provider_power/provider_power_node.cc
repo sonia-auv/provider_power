@@ -244,7 +244,7 @@ namespace provider_power {
                 ReadMotorCMD(receivedData->data, nb_motor);
                 break;
             default:
-                ROS_WARN_STREAM("Unknow CMD to provider_power");
+                //ROS_WARN_STREAM("Unknow CMD to provider_power");
                 break;
             }
         }
