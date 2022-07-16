@@ -222,6 +222,8 @@ namespace provider_power {
                             break;
                     }
                     break;
+                case sonia_common::SendRS485Msg::CMD_KEEP_ALIVE:
+                    break;
                 default:
                     ROS_WARN_STREAM("Unknow CMD to provider_power");
                     break;
@@ -243,8 +245,10 @@ namespace provider_power {
             case sonia_common::SendRS485Msg::CMD_READ_MOTOR:
                 ReadMotorCMD(receivedData->data, nb_motor);
                 break;
+            case sonia_common::SendRS485Msg::CMD_KEEP_ALIVE:
+                break;
             default:
-                //ROS_WARN_STREAM("Unknow CMD to provider_power");
+                ROS_WARN_STREAM("Unknow CMD to provider_power");
                 break;
             }
         }
