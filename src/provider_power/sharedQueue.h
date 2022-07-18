@@ -24,6 +24,7 @@ public:
 
     unsigned long size();
     bool empty();
+    void clear();
 
 private:
     std::deque<T> queue_;
@@ -112,6 +113,18 @@ bool SharedQueue<T>::empty()
     mlock.unlock();
     cond_.notify_one();
     return empty;
+}
+
+template <typename T>
+void SharedQueue<T>::clear()
+{
+    std::unique_lock<std::mutex> mlock(mutex_);
+    while (!queue_.empty())
+    {
+        queue_.pop_front();
+    }
+    mlock.unlock();
+    cond_.notify_one();
 }
 
 #endif //INTERFACE_RS485_SHAREDQUEUE_H

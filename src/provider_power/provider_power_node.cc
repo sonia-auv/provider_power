@@ -28,6 +28,8 @@
  * along with S.O.N.I.A. software. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define TIME_BETWEEN_FLUSH 30 // seconds
+
 #include "provider_power_node.h"
 
 namespace provider_power {
@@ -372,10 +374,11 @@ namespace provider_power {
 
     void ProviderPowerNode::writeVoltageData()
     {
+        double time_start = ros::Time::now().toSec();
+
         while(!ros::isShuttingDown())
         {
-            ros::Duration(0.1).sleep();
-            while(!parsedQueueVoltageSlave0.empty() && !parsedQueueVoltageSlave1.empty() && !parsedQueueVoltageSlave2.empty() && !parsedQueueVoltageSlave3.empty())
+            if(!parsedQueueVoltageSlave0.empty() && !parsedQueueVoltageSlave1.empty() && !parsedQueueVoltageSlave2.empty() && !parsedQueueVoltageSlave3.empty())
             {
                 std_msgs::Float64MultiArray msg_16V;
                 std_msgs::Float64MultiArray msg_12V;
@@ -407,17 +410,30 @@ namespace provider_power {
 
                 voltage16V_publisher_.publish(msg_16V);
                 voltage12V_publisher_.publish(msg_12V);
+            }
+            else
+            {
+                ros::Duration(0.1).sleep();
+            }
 
+            if(time_start - ros::Time::now().toSec() >= TIME_BETWEEN_FLUSH)
+            {
+                parsedQueueVoltageSlave0.clear();
+                parsedQueueVoltageSlave1.clear();
+                parsedQueueVoltageSlave2.clear();
+                parsedQueueVoltageSlave3.clear();
+                time_start = ros::Time::now().toSec();
             }
         }
     }
 
     void ProviderPowerNode::writeCurrentData()
     {
+        double time_start = ros::Time::now().toSec();
+
         while(!ros::isShuttingDown())
-        {
-            ros::Duration(0.1).sleep();
-            while(!parsedQueueCurrentSlave0.empty() && !parsedQueueCurrentSlave1.empty() && !parsedQueueCurrentSlave2.empty() && !parsedQueueCurrentSlave3.empty())
+        {   
+            if(!parsedQueueCurrentSlave0.empty() && !parsedQueueCurrentSlave1.empty() && !parsedQueueCurrentSlave2.empty() && !parsedQueueCurrentSlave3.empty())
             {
                 std_msgs::Float64MultiArray msg;
 
@@ -436,15 +452,29 @@ namespace provider_power {
 
                 current_publisher_.publish(msg);
             }
+            else
+            {
+                ros::Duration(0.1).sleep();
+            }
+
+            if(time_start - ros::Time::now().toSec() >= TIME_BETWEEN_FLUSH)
+            {
+                parsedQueueCurrentSlave0.clear();
+                parsedQueueCurrentSlave1.clear();
+                parsedQueueCurrentSlave2.clear();
+                parsedQueueCurrentSlave3.clear();
+                time_start = ros::Time::now().toSec();
+            }
         }
     }
 
     void ProviderPowerNode::writeMotorData()
     {
-         while(!ros::isShuttingDown())
+        double time_start = ros::Time::now().toSec();
+
+        while(!ros::isShuttingDown())
         {
-            ros::Duration(0.1).sleep();
-            while(!readQueueMotorSlave0.empty() && !readQueueMotorSlave1.empty() && !readQueueMotorSlave2.empty() && !readQueueMotorSlave3.empty())
+            if(!readQueueMotorSlave0.empty() && !readQueueMotorSlave1.empty() && !readQueueMotorSlave2.empty() && !readQueueMotorSlave3.empty())
             {
                 std_msgs::UInt8MultiArray msg;
 
@@ -463,7 +493,19 @@ namespace provider_power {
 
                 motor_publisher_.publish(msg);
             }
+            else
+            {
+                ros::Duration(0.1).sleep();
+            }
+
+            if(time_start - ros::Time::now().toSec() >= TIME_BETWEEN_FLUSH)
+            {
+                readQueueMotorSlave0.clear();
+                readQueueMotorSlave1.clear();
+                readQueueMotorSlave2.clear();
+                readQueueMotorSlave3.clear();
+                time_start = ros::Time::now().toSec();
+            }
         }
     }
-
 }
