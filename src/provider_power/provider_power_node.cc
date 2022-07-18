@@ -28,7 +28,7 @@
  * along with S.O.N.I.A. software. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define TIME_BETWEEN_FLUSH 30 // seconds
+#define TIME_BETWEEN_FLUSH 15 // seconds
 
 #include "provider_power_node.h"
 
