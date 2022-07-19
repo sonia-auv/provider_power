@@ -374,8 +374,6 @@ namespace provider_power {
 
     void ProviderPowerNode::writeVoltageData()
     {
-        double time_start = ros::Time::now().toSec();
-
         while(!ros::isShuttingDown())
         {
             if(!parsedQueueVoltageSlave0.empty() && !parsedQueueVoltageSlave1.empty() && !parsedQueueVoltageSlave2.empty() && !parsedQueueVoltageSlave3.empty())
@@ -383,11 +381,15 @@ namespace provider_power {
                 std_msgs::Float64MultiArray msg_16V;
                 std_msgs::Float64MultiArray msg_12V;
 
-                std::vector<double> msg_slave0 = parsedQueueVoltageSlave0.get_n_pop_front();
-                std::vector<double> msg_slave1 = parsedQueueVoltageSlave1.get_n_pop_front();
-                std::vector<double> msg_slave2 = parsedQueueVoltageSlave2.get_n_pop_front();
-                std::vector<double> msg_slave3 = parsedQueueVoltageSlave3.get_n_pop_front();
-
+                std::vector<double> msg_slave0 = parsedQueueVoltageSlave0.get_n_pop_back();
+                parsedQueueVoltageSlave0.clear();
+                std::vector<double> msg_slave1 = parsedQueueVoltageSlave1.get_n_pop_back();
+                parsedQueueVoltageSlave1.clear();
+                std::vector<double> msg_slave2 = parsedQueueVoltageSlave2.get_n_pop_back();
+                parsedQueueVoltageSlave2.clear();
+                std::vector<double> msg_slave3 = parsedQueueVoltageSlave3.get_n_pop_back();
+                parsedQueueVoltageSlave3.clear();
+                
                 // Motors Voltage
                 msg_16V.data.push_back(msg_slave0[0]);
                 msg_16V.data.push_back(msg_slave1[0]);
@@ -415,32 +417,25 @@ namespace provider_power {
             {
                 ros::Duration(0.1).sleep();
             }
-
-            if(time_start - ros::Time::now().toSec() >= TIME_BETWEEN_FLUSH)
-            {
-                parsedQueueVoltageSlave0.clear();
-                parsedQueueVoltageSlave1.clear();
-                parsedQueueVoltageSlave2.clear();
-                parsedQueueVoltageSlave3.clear();
-                time_start = ros::Time::now().toSec();
-            }
         }
     }
 
     void ProviderPowerNode::writeCurrentData()
     {
-        double time_start = ros::Time::now().toSec();
-
         while(!ros::isShuttingDown())
         {   
             if(!parsedQueueCurrentSlave0.empty() && !parsedQueueCurrentSlave1.empty() && !parsedQueueCurrentSlave2.empty() && !parsedQueueCurrentSlave3.empty())
             {
                 std_msgs::Float64MultiArray msg;
 
-                std::vector<double> msg_slave0 = parsedQueueCurrentSlave0.get_n_pop_front();
-                std::vector<double> msg_slave1 = parsedQueueCurrentSlave1.get_n_pop_front();
-                std::vector<double> msg_slave2 = parsedQueueCurrentSlave2.get_n_pop_front();
-                std::vector<double> msg_slave3 = parsedQueueCurrentSlave3.get_n_pop_front();
+                std::vector<double> msg_slave0 = parsedQueueCurrentSlave0.get_n_pop_back();
+                parsedQueueCurrentSlave0.clear();
+                std::vector<double> msg_slave1 = parsedQueueCurrentSlave1.get_n_pop_back();
+                parsedQueueCurrentSlave1.clear();
+                std::vector<double> msg_slave2 = parsedQueueCurrentSlave2.get_n_pop_back();
+                parsedQueueCurrentSlave2.clear();
+                std::vector<double> msg_slave3 = parsedQueueCurrentSlave3.get_n_pop_back();
+                parsedQueueCurrentSlave3.clear();
 
                 for (int i = 0; i <= 2; i++)
                 {
@@ -456,32 +451,25 @@ namespace provider_power {
             {
                 ros::Duration(0.1).sleep();
             }
-
-            if(time_start - ros::Time::now().toSec() >= TIME_BETWEEN_FLUSH)
-            {
-                parsedQueueCurrentSlave0.clear();
-                parsedQueueCurrentSlave1.clear();
-                parsedQueueCurrentSlave2.clear();
-                parsedQueueCurrentSlave3.clear();
-                time_start = ros::Time::now().toSec();
-            }
         }
     }
 
     void ProviderPowerNode::writeMotorData()
     {
-        double time_start = ros::Time::now().toSec();
-
         while(!ros::isShuttingDown())
         {
             if(!readQueueMotorSlave0.empty() && !readQueueMotorSlave1.empty() && !readQueueMotorSlave2.empty() && !readQueueMotorSlave3.empty())
             {
                 std_msgs::UInt8MultiArray msg;
 
-                std::vector<uint8_t> msg_slave0 = readQueueMotorSlave0.get_n_pop_front();
-                std::vector<uint8_t> msg_slave1 = readQueueMotorSlave1.get_n_pop_front();
-                std::vector<uint8_t> msg_slave2 = readQueueMotorSlave2.get_n_pop_front();
-                std::vector<uint8_t> msg_slave3 = readQueueMotorSlave3.get_n_pop_front();
+                std::vector<uint8_t> msg_slave0 = readQueueMotorSlave0.get_n_pop_back();
+                readQueueMotorSlave0.clear();
+                std::vector<uint8_t> msg_slave1 = readQueueMotorSlave1.get_n_pop_back();
+                readQueueMotorSlave1.clear();
+                std::vector<uint8_t> msg_slave2 = readQueueMotorSlave2.get_n_pop_back();
+                readQueueMotorSlave2.clear();
+                std::vector<uint8_t> msg_slave3 = readQueueMotorSlave3.get_n_pop_back();
+                readQueueMotorSlave3.clear();
 
                 for (int i = 0; i < 2; i++)
                 {
@@ -496,15 +484,6 @@ namespace provider_power {
             else
             {
                 ros::Duration(0.1).sleep();
-            }
-
-            if(time_start - ros::Time::now().toSec() >= TIME_BETWEEN_FLUSH)
-            {
-                readQueueMotorSlave0.clear();
-                readQueueMotorSlave1.clear();
-                readQueueMotorSlave2.clear();
-                readQueueMotorSlave3.clear();
-                time_start = ros::Time::now().toSec();
             }
         }
     }
