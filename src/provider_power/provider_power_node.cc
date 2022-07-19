@@ -478,10 +478,14 @@ namespace provider_power {
             {
                 std_msgs::UInt8MultiArray msg;
 
-                std::vector<uint8_t> msg_slave0 = readQueueMotorSlave0.get_n_pop_front();
-                std::vector<uint8_t> msg_slave1 = readQueueMotorSlave1.get_n_pop_front();
-                std::vector<uint8_t> msg_slave2 = readQueueMotorSlave2.get_n_pop_front();
-                std::vector<uint8_t> msg_slave3 = readQueueMotorSlave3.get_n_pop_front();
+                std::vector<uint8_t> msg_slave0 = readQueueMotorSlave0.get_n_pop_back();
+                readQueueMotorSlave0.clear();
+                std::vector<uint8_t> msg_slave1 = readQueueMotorSlave1.get_n_pop_back();
+                readQueueMotorSlave1.clear();
+                std::vector<uint8_t> msg_slave2 = readQueueMotorSlave2.get_n_pop_back();
+                readQueueMotorSlave2.clear();
+                std::vector<uint8_t> msg_slave3 = readQueueMotorSlave3.get_n_pop_back();
+                readQueueMotorSlave3.clear();
 
                 for (int i = 0; i < 2; i++)
                 {
@@ -498,14 +502,14 @@ namespace provider_power {
                 ros::Duration(0.1).sleep();
             }
 
-            if(time_start - ros::Time::now().toSec() >= TIME_BETWEEN_FLUSH)
+            /*if(ros::Time::now().toSec() - time_start >= TIME_BETWEEN_FLUSH)
             {
                 readQueueMotorSlave0.clear();
                 readQueueMotorSlave1.clear();
                 readQueueMotorSlave2.clear();
                 readQueueMotorSlave3.clear();
                 time_start = ros::Time::now().toSec();
-            }
+            }*/
         }
     }
 }

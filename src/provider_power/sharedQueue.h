@@ -17,6 +17,7 @@ public:
     void pop_front();
 
     T get_n_pop_front();
+    T get_n_pop_back();
 
     void push_back(const T& item);
     void push_back(T&& item);
@@ -70,6 +71,21 @@ T SharedQueue<T>::get_n_pop_front()
     }
     T temp = queue_.front();
     queue_.pop_front();
+    mlock.unlock();
+    cond_.notify_one();
+    return temp;
+}
+
+template <typename T>
+T SharedQueue<T>::get_n_pop_back()
+{
+    std::unique_lock<std::mutex> mlock(mutex_);
+    while (queue_.empty())
+    {
+        cond_.wait(mlock);
+    }
+    T temp = queue_.back();
+    queue_.pop_back();
     mlock.unlock();
     cond_.notify_one();
     return temp;
