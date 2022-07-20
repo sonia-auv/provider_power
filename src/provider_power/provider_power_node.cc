@@ -83,7 +83,7 @@ namespace provider_power {
 // M E T H O D   S E C T I O N
 
     void ProviderPowerNode::Spin(){
-        ros::Rate r(5); // 5 hz
+        ros::Rate r(RATE_HZ); // 5 hz
 
         while(ros::ok())
         {
@@ -111,7 +111,7 @@ namespace provider_power {
                             }
                             else
                             {
-                                parsedQueueVoltageSlave0.push_back(msg);
+                                parsedQueueVoltageSlave0 = msg;
                             }
                             break;
                         case sonia_common::SendRS485Msg::SLAVE_PSU1:
@@ -122,7 +122,7 @@ namespace provider_power {
                             }
                             else
                             {
-                                parsedQueueVoltageSlave1.push_back(msg);
+                                parsedQueueVoltageSlave1 = msg;
                             }
                             break;
                         case sonia_common::SendRS485Msg::SLAVE_PSU2:
@@ -133,7 +133,7 @@ namespace provider_power {
                             }
                             else
                             {
-                                parsedQueueVoltageSlave2.push_back(msg);
+                                parsedQueueVoltageSlave2 = msg;
                             }
                             break;
                         case sonia_common::SendRS485Msg::SLAVE_PSU3:
@@ -144,7 +144,7 @@ namespace provider_power {
                             }
                             else
                             {
-                                parsedQueueVoltageSlave3.push_back(msg);
+                                parsedQueueVoltageSlave3 = msg;
                             }
                             break;
                         default:
@@ -163,7 +163,7 @@ namespace provider_power {
                             }
                             else
                             {
-                                parsedQueueCurrentSlave0.push_back(msg);
+                                parsedQueueCurrentSlave0 = msg;
                             }
                             break;
                         case sonia_common::SendRS485Msg::SLAVE_PSU1:
@@ -174,7 +174,7 @@ namespace provider_power {
                             }
                             else
                             {
-                                parsedQueueCurrentSlave1.push_back(msg);
+                                parsedQueueCurrentSlave1 = msg;
                             }
                             break;
                         case sonia_common::SendRS485Msg::SLAVE_PSU2:
@@ -185,7 +185,7 @@ namespace provider_power {
                             }
                             else
                             {
-                                parsedQueueCurrentSlave2.push_back(msg);
+                                parsedQueueCurrentSlave2 = msg;
                             }
                             break;
                         case sonia_common::SendRS485Msg::SLAVE_PSU3:
@@ -196,7 +196,7 @@ namespace provider_power {
                             }
                             else
                             {
-                                parsedQueueCurrentSlave3.push_back(msg);
+                                parsedQueueCurrentSlave3 = msg;
                             }
                             break;
                         default:
@@ -208,16 +208,16 @@ namespace provider_power {
                     switch (receivedData->slave)
                     {
                         case sonia_common::SendRS485Msg::SLAVE_PSU0:
-                            readQueueMotorSlave0.push_back(receivedData->data);
+                            readQueueMotorSlave0 = receivedData->data;
                             break;
                         case sonia_common::SendRS485Msg::SLAVE_PSU1:
-                            readQueueMotorSlave1.push_back(receivedData->data);
+                            readQueueMotorSlave1 = receivedData->data;
                             break;
                         case sonia_common::SendRS485Msg::SLAVE_PSU2:
-                            readQueueMotorSlave2.push_back(receivedData->data);
+                            readQueueMotorSlave2 = receivedData->data;
                             break;
                         case sonia_common::SendRS485Msg::SLAVE_PSU3:
-                            readQueueMotorSlave3.push_back(receivedData->data);
+                            readQueueMotorSlave3 = receivedData->data;
                             break;
                         default:
                             ROS_WARN_STREAM("Unknown SLAVE to provider_power");
@@ -374,68 +374,56 @@ namespace provider_power {
 
     void ProviderPowerNode::writeVoltageData()
     {
+        ros::Rate r(RATE_HZ);
+
         while(!ros::isShuttingDown())
         {
-            if(!parsedQueueVoltageSlave0.empty() && !parsedQueueVoltageSlave1.empty() && !parsedQueueVoltageSlave2.empty() && !parsedQueueVoltageSlave3.empty())
-            {
-                std_msgs::Float64MultiArray msg_16V;
-                std_msgs::Float64MultiArray msg_12V;
+            std_msgs::Float64MultiArray msg_16V;
+            std_msgs::Float64MultiArray msg_12V;
 
-                std::vector<double> msg_slave0 = parsedQueueVoltageSlave0.get_n_pop_back();
-                parsedQueueVoltageSlave0.clear();
-                std::vector<double> msg_slave1 = parsedQueueVoltageSlave1.get_n_pop_back();
-                parsedQueueVoltageSlave1.clear();
-                std::vector<double> msg_slave2 = parsedQueueVoltageSlave2.get_n_pop_back();
-                parsedQueueVoltageSlave2.clear();
-                std::vector<double> msg_slave3 = parsedQueueVoltageSlave3.get_n_pop_back();
-                parsedQueueVoltageSlave3.clear();
-                
-                // Motors Voltage
-                msg_16V.data.push_back(msg_slave0[0]);
-                msg_16V.data.push_back(msg_slave1[0]);
-                msg_16V.data.push_back(msg_slave2[0]);
-                msg_16V.data.push_back(msg_slave3[0]);
-                msg_16V.data.push_back(msg_slave0[1]);
-                msg_16V.data.push_back(msg_slave1[1]);
-                msg_16V.data.push_back(msg_slave2[1]);
-                msg_16V.data.push_back(msg_slave3[1]);
+            std::vector<double> msg_slave0 = parsedQueueVoltageSlave0;
+            std::vector<double> msg_slave1 = parsedQueueVoltageSlave1;
+            std::vector<double> msg_slave2 = parsedQueueVoltageSlave2;
+            std::vector<double> msg_slave3 = parsedQueueVoltageSlave3;
+            
+            // Motors Voltage
+            msg_16V.data.push_back(msg_slave0[0]);
+            msg_16V.data.push_back(msg_slave1[0]);
+            msg_16V.data.push_back(msg_slave2[0]);
+            msg_16V.data.push_back(msg_slave3[0]);
+            msg_16V.data.push_back(msg_slave0[1]);
+            msg_16V.data.push_back(msg_slave1[1]);
+            msg_16V.data.push_back(msg_slave2[1]);
+            msg_16V.data.push_back(msg_slave3[1]);
 
-                // Batteries Voltage
-                msg_16V.data.push_back((msg_slave0[3]+msg_slave1[3])/2);
-                msg_16V.data.push_back((msg_slave2[3]+msg_slave3[3])/2);
+            // Batteries Voltage
+            msg_16V.data.push_back((msg_slave0[3]+msg_slave1[3])/2);
+            msg_16V.data.push_back((msg_slave2[3]+msg_slave3[3])/2);
 
-                // 12V Voltage
-                msg_12V.data.push_back(msg_slave0[2]);
-                msg_12V.data.push_back(msg_slave1[2]);
-                msg_12V.data.push_back(msg_slave2[2]);
-                msg_12V.data.push_back(msg_slave3[2]);
+            // 12V Voltage
+            msg_12V.data.push_back(msg_slave0[2]);
+            msg_12V.data.push_back(msg_slave1[2]);
+            msg_12V.data.push_back(msg_slave2[2]);
+            msg_12V.data.push_back(msg_slave3[2]);
 
-                voltage16V_publisher_.publish(msg_16V);
-                voltage12V_publisher_.publish(msg_12V);
-            }
-            else
-            {
-                ros::Duration(0.1).sleep();
-            }
+            voltage16V_publisher_.publish(msg_16V);
+            voltage12V_publisher_.publish(msg_12V);
+
+            r.sleep();
         }
     }
 
     void ProviderPowerNode::writeCurrentData()
     {
+        ros::Rate r(RATE_HZ);
         while(!ros::isShuttingDown())
         {   
-            if(!parsedQueueCurrentSlave0.empty() && !parsedQueueCurrentSlave1.empty() && !parsedQueueCurrentSlave2.empty() && !parsedQueueCurrentSlave3.empty())
-            {
                 std_msgs::Float64MultiArray msg;
 
-                std::vector<double> msg_slave0 = parsedQueueCurrentSlave0.get_n_pop_back();
-                parsedQueueCurrentSlave0.clear();
-                std::vector<double> msg_slave1 = parsedQueueCurrentSlave1.get_n_pop_back();
-                parsedQueueCurrentSlave1.clear();
-                std::vector<double> msg_slave2 = parsedQueueCurrentSlave2.get_n_pop_back();
-                parsedQueueCurrentSlave2.clear();
-                std::vector<double> msg_slave3 = parsedQueueCurrentSlave3.get_n_pop_back();
-                parsedQueueCurrentSlave3.clear();
+                std::vector<double> msg_slave0 = parsedQueueCurrentSlave0;
+                std::vector<double> msg_slave1 = parsedQueueCurrentSlave1;
+                std::vector<double> msg_slave2 = parsedQueueCurrentSlave2;
+                std::vector<double> msg_slave3 = parsedQueueCurrentSlave3;
 
                 for (int i = 0; i <= 2; i++)
                 {
@@ -446,45 +434,35 @@ namespace provider_power {
                 }
 
                 current_publisher_.publish(msg);
-            }
-            else
-            {
-                ros::Duration(0.1).sleep();
-            }
+
+                r.sleep();
         }
     }
 
     void ProviderPowerNode::writeMotorData()
     {
+        ros::Rate r(RATE_HZ);
+
         while(!ros::isShuttingDown())
         {
-            if(!readQueueMotorSlave0.empty() && !readQueueMotorSlave1.empty() && !readQueueMotorSlave2.empty() && !readQueueMotorSlave3.empty())
+            std_msgs::UInt8MultiArray msg;
+
+            std::vector<uint8_t> msg_slave0 = readQueueMotorSlave0;
+            std::vector<uint8_t> msg_slave1 = readQueueMotorSlave1;
+            std::vector<uint8_t> msg_slave2 = readQueueMotorSlave2;
+            std::vector<uint8_t> msg_slave3 = readQueueMotorSlave3;
+
+            for (int i = 0; i < 2; i++)
             {
-                std_msgs::UInt8MultiArray msg;
-
-                std::vector<uint8_t> msg_slave0 = readQueueMotorSlave0.get_n_pop_back();
-                readQueueMotorSlave0.clear();
-                std::vector<uint8_t> msg_slave1 = readQueueMotorSlave1.get_n_pop_back();
-                readQueueMotorSlave1.clear();
-                std::vector<uint8_t> msg_slave2 = readQueueMotorSlave2.get_n_pop_back();
-                readQueueMotorSlave2.clear();
-                std::vector<uint8_t> msg_slave3 = readQueueMotorSlave3.get_n_pop_back();
-                readQueueMotorSlave3.clear();
-
-                for (int i = 0; i < 2; i++)
-                {
-                    msg.data.push_back(msg_slave0[i]);
-                    msg.data.push_back(msg_slave1[i]);
-                    msg.data.push_back(msg_slave2[i]);
-                    msg.data.push_back(msg_slave3[i]);
-                }
-
-                motor_publisher_.publish(msg);
+                msg.data.push_back(msg_slave0[i]);
+                msg.data.push_back(msg_slave1[i]);
+                msg.data.push_back(msg_slave2[i]);
+                msg.data.push_back(msg_slave3[i]);
             }
-            else
-            {
-                ros::Duration(0.1).sleep();
-            }
+
+            motor_publisher_.publish(msg);
+
+            r.sleep();
         }
     }
 }
