@@ -43,7 +43,8 @@ namespace provider_power {
 
     class ProviderPowerNode {
     public:
-        const double RATE_HZ = 2;
+        const double RATE_HZ = 5.0;
+        const double RATE_HZ_MESSAGE = 2.0;
 
         //============================================================================
         // P U B L I C   C / D T O R S

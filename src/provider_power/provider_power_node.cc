@@ -383,7 +383,7 @@ namespace provider_power {
 
     void ProviderPowerNode::writeVoltageData()
     {
-        ros::Rate r(RATE_HZ);
+        ros::Rate r(RATE_HZ_MESSAGE);
 
         while(!ros::isShuttingDown())
         {
@@ -398,6 +398,11 @@ namespace provider_power {
             std::vector<double> msg_slave3 = parsedQueueVoltageSlave3;
 
             mlock.unlock();
+
+            if(msg_slave0.empty() || msg_slave1.empty() || msg_slave2.empty() || msg_slave3.empty())
+            {
+                continue;
+            }
             
             // Motors Voltage
             msg_16V.data.push_back(msg_slave0[0]);
@@ -428,37 +433,42 @@ namespace provider_power {
 
     void ProviderPowerNode::writeCurrentData()
     {
-        ros::Rate r(RATE_HZ);
+        ros::Rate r(RATE_HZ_MESSAGE);
         while(!ros::isShuttingDown())
         {   
-                std_msgs::Float64MultiArray msg;
+            std_msgs::Float64MultiArray msg;
 
-                std::unique_lock<std::mutex> mlock(currentMutex);
+            std::unique_lock<std::mutex> mlock(currentMutex);
 
-                std::vector<double> msg_slave0 = parsedQueueCurrentSlave0;
-                std::vector<double> msg_slave1 = parsedQueueCurrentSlave1;
-                std::vector<double> msg_slave2 = parsedQueueCurrentSlave2;
-                std::vector<double> msg_slave3 = parsedQueueCurrentSlave3;
+            std::vector<double> msg_slave0 = parsedQueueCurrentSlave0;
+            std::vector<double> msg_slave1 = parsedQueueCurrentSlave1;
+            std::vector<double> msg_slave2 = parsedQueueCurrentSlave2;
+            std::vector<double> msg_slave3 = parsedQueueCurrentSlave3;
 
-                mlock.unlock();
+            mlock.unlock();
 
-                for (int i = 0; i <= 2; i++)
-                {
-                    msg.data.push_back(msg_slave0[i]);
-                    msg.data.push_back(msg_slave1[i]);
-                    msg.data.push_back(msg_slave2[i]);
-                    msg.data.push_back(msg_slave3[i]);
-                }
+            if(msg_slave0.empty() || msg_slave1.empty() || msg_slave2.empty() || msg_slave3.empty())
+            {
+                continue;
+            }
 
-                current_publisher_.publish(msg);
+            for (int i = 0; i <= 2; i++)
+            {
+                msg.data.push_back(msg_slave0[i]);
+                msg.data.push_back(msg_slave1[i]);
+                msg.data.push_back(msg_slave2[i]);
+                msg.data.push_back(msg_slave3[i]);
+            }
 
-                r.sleep();
+            current_publisher_.publish(msg);
+
+            r.sleep();
         }
     }
 
     void ProviderPowerNode::writeMotorData()
     {
-        ros::Rate r(RATE_HZ);
+        ros::Rate r(RATE_HZ_MESSAGE);
 
         while(!ros::isShuttingDown())
         {
@@ -472,6 +482,11 @@ namespace provider_power {
             std::vector<uint8_t> msg_slave3 = readQueueMotorSlave3;
 
             mlock.unlock();
+
+            if(msg_slave0.empty() || msg_slave1.empty() || msg_slave2.empty() || msg_slave3.empty())
+            {
+                continue;
+            }
 
             for (int i = 0; i < 2; i++)
             {
