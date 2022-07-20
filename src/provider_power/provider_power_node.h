@@ -37,12 +37,15 @@
 #include <std_msgs/UInt8MultiArray.h>
 #include <std_msgs/Bool.h>
 #include <thread>
-#include "sharedQueue.h"
+#include <mutex>
 
 namespace provider_power {
 
     class ProviderPowerNode {
     public:
+        const double RATE_HZ = 5.0;
+        const double RATE_HZ_MESSAGE = 2.0;
+
         //============================================================================
         // P U B L I C   C / D T O R S
         ProviderPowerNode(ros::NodeHandlePtr &nh);
@@ -93,21 +96,22 @@ namespace provider_power {
         std::thread writerCurrent;
         std::thread writerMotor;
 
-        SharedQueue<std_msgs::Float64MultiArray::ConstPtr> writerQueueVoltage;
-        SharedQueue<std_msgs::Float64MultiArray::ConstPtr> writerQueueCurrent;
-        SharedQueue<std_msgs::Float64MultiArray::ConstPtr> writerQueueMotor;
-        SharedQueue<std::vector<double>> parsedQueueVoltageSlave0;
-        SharedQueue<std::vector<double>> parsedQueueVoltageSlave1;
-        SharedQueue<std::vector<double>> parsedQueueVoltageSlave2;
-        SharedQueue<std::vector<double>> parsedQueueVoltageSlave3;
-        SharedQueue<std::vector<double>> parsedQueueCurrentSlave0;
-        SharedQueue<std::vector<double>> parsedQueueCurrentSlave1;
-        SharedQueue<std::vector<double>> parsedQueueCurrentSlave2;
-        SharedQueue<std::vector<double>> parsedQueueCurrentSlave3;
-        SharedQueue<std::vector<uint8_t>> readQueueMotorSlave0;
-        SharedQueue<std::vector<uint8_t>> readQueueMotorSlave1;
-        SharedQueue<std::vector<uint8_t>> readQueueMotorSlave2;
-        SharedQueue<std::vector<uint8_t>> readQueueMotorSlave3;
+        std::mutex voltageMutex;
+        std::mutex currentMutex;
+        std::mutex motorMutex;
+
+        std::vector<double> parsedQueueVoltageSlave0;
+        std::vector<double> parsedQueueVoltageSlave1;
+        std::vector<double> parsedQueueVoltageSlave2;
+        std::vector<double> parsedQueueVoltageSlave3;
+        std::vector<double> parsedQueueCurrentSlave0;
+        std::vector<double> parsedQueueCurrentSlave1;
+        std::vector<double> parsedQueueCurrentSlave2;
+        std::vector<double> parsedQueueCurrentSlave3;
+        std::vector<uint8_t> readQueueMotorSlave0;
+        std::vector<uint8_t> readQueueMotorSlave1;
+        std::vector<uint8_t> readQueueMotorSlave2;
+        std::vector<uint8_t> readQueueMotorSlave3;
 
         union powerData {
             uint8_t Bytes[4];
