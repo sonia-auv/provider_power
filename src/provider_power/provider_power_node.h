@@ -37,6 +37,7 @@
 #include <std_msgs/UInt8MultiArray.h>
 #include <std_msgs/Bool.h>
 #include <thread>
+#include <mutex>
 
 namespace provider_power {
 
@@ -93,6 +94,10 @@ namespace provider_power {
         std::thread writerVoltage;
         std::thread writerCurrent;
         std::thread writerMotor;
+
+        std::mutex voltageMutex;
+        std::mutex currentMutex;
+        std::mutex motorMutex;
 
         std::vector<double> parsedQueueVoltageSlave0;
         std::vector<double> parsedQueueVoltageSlave1;

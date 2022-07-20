@@ -101,6 +101,8 @@ namespace provider_power {
             switch (receivedData->cmd)
             {
                 case sonia_common::SendRS485Msg::CMD_VOLTAGE:
+                {
+                    std::unique_lock<std::mutex> mlock(voltageMutex);
                     switch (receivedData->slave)
                     {
                         case sonia_common::SendRS485Msg::SLAVE_PSU0:
@@ -151,8 +153,11 @@ namespace provider_power {
                             ROS_WARN_STREAM("Unknown SLAVE to provider_power");
                             break;
                     }
+                }
                     break;
                 case sonia_common::SendRS485Msg::CMD_CURRENT:
+                {
+                    std::unique_lock<std::mutex> mlock(currentMutex);
                     switch (receivedData->slave)
                     {
                         case sonia_common::SendRS485Msg::SLAVE_PSU0:
@@ -203,8 +208,11 @@ namespace provider_power {
                             ROS_WARN_STREAM("Unknown SLAVE to provider_power");
                             break;
                     }
+                }
                     break;
                 case sonia_common::SendRS485Msg::CMD_READ_MOTOR:
+                {
+                    std::unique_lock<std::mutex> mlock(motorMutex);
                     switch (receivedData->slave)
                     {
                         case sonia_common::SendRS485Msg::SLAVE_PSU0:
@@ -223,6 +231,7 @@ namespace provider_power {
                             ROS_WARN_STREAM("Unknown SLAVE to provider_power");
                             break;
                     }
+                }
                     break;
                 case sonia_common::SendRS485Msg::CMD_KEEP_ALIVE:
                     break;
@@ -381,10 +390,14 @@ namespace provider_power {
             std_msgs::Float64MultiArray msg_16V;
             std_msgs::Float64MultiArray msg_12V;
 
+            std::unique_lock<std::mutex> mlock(voltageMutex);
+
             std::vector<double> msg_slave0 = parsedQueueVoltageSlave0;
             std::vector<double> msg_slave1 = parsedQueueVoltageSlave1;
             std::vector<double> msg_slave2 = parsedQueueVoltageSlave2;
             std::vector<double> msg_slave3 = parsedQueueVoltageSlave3;
+
+            mlock.unlock();
             
             // Motors Voltage
             msg_16V.data.push_back(msg_slave0[0]);
@@ -420,10 +433,14 @@ namespace provider_power {
         {   
                 std_msgs::Float64MultiArray msg;
 
+                std::unique_lock<std::mutex> mlock(currentMutex);
+
                 std::vector<double> msg_slave0 = parsedQueueCurrentSlave0;
                 std::vector<double> msg_slave1 = parsedQueueCurrentSlave1;
                 std::vector<double> msg_slave2 = parsedQueueCurrentSlave2;
                 std::vector<double> msg_slave3 = parsedQueueCurrentSlave3;
+
+                mlock.unlock();
 
                 for (int i = 0; i <= 2; i++)
                 {
@@ -447,10 +464,14 @@ namespace provider_power {
         {
             std_msgs::UInt8MultiArray msg;
 
+            std::unique_lock<std::mutex> mlock(motorMutex);
+
             std::vector<uint8_t> msg_slave0 = readQueueMotorSlave0;
             std::vector<uint8_t> msg_slave1 = readQueueMotorSlave1;
             std::vector<uint8_t> msg_slave2 = readQueueMotorSlave2;
             std::vector<uint8_t> msg_slave3 = readQueueMotorSlave3;
+
+            mlock.unlock();
 
             for (int i = 0; i < 2; i++)
             {
