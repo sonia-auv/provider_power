@@ -387,6 +387,8 @@ namespace provider_power {
 
         while(!ros::isShuttingDown())
         {
+            r.sleep();
+
             std_msgs::Float64MultiArray msg_16V;
             std_msgs::Float64MultiArray msg_12V;
 
@@ -426,8 +428,6 @@ namespace provider_power {
 
             voltage16V_publisher_.publish(msg_16V);
             voltage12V_publisher_.publish(msg_12V);
-
-            r.sleep();
         }
     }
 
@@ -435,7 +435,9 @@ namespace provider_power {
     {
         ros::Rate r(RATE_HZ_MESSAGE);
         while(!ros::isShuttingDown())
-        {   
+        {
+            r.sleep();
+
             std_msgs::Float64MultiArray msg;
 
             std::unique_lock<std::mutex> mlock(currentMutex);
@@ -461,8 +463,6 @@ namespace provider_power {
             }
 
             current_publisher_.publish(msg);
-
-            r.sleep();
         }
     }
 
@@ -472,6 +472,8 @@ namespace provider_power {
 
         while(!ros::isShuttingDown())
         {
+            r.sleep();
+
             std_msgs::UInt8MultiArray msg;
 
             std::unique_lock<std::mutex> mlock(motorMutex);
@@ -497,8 +499,6 @@ namespace provider_power {
             }
 
             motor_publisher_.publish(msg);
-
-            r.sleep();
         }
     }
 }
