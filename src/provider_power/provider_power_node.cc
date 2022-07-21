@@ -401,6 +401,7 @@ namespace provider_power {
 
             if(msg_slave0.empty() || msg_slave1.empty() || msg_slave2.empty() || msg_slave3.empty())
             {
+                r.sleep();
                 continue;
             }
             
@@ -449,6 +450,7 @@ namespace provider_power {
 
             if(msg_slave0.empty() || msg_slave1.empty() || msg_slave2.empty() || msg_slave3.empty())
             {
+                r.sleep();
                 continue;
             }
 
@@ -485,6 +487,7 @@ namespace provider_power {
 
             if(msg_slave0.empty() || msg_slave1.empty() || msg_slave2.empty() || msg_slave3.empty())
             {
+                r.sleep();
                 continue;
             }
 
